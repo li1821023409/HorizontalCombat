@@ -1,0 +1,4 @@
+﻿资产编号,名字,资产路径,资产类型,初始化数量,最大数量
+Id,Name,AssetPath（Assets/Resources/）,AssetType（None = 0，LocalPlayer = 1，FriendlyForces = 2，Enemy = 3，SceneObject = 4，Effect = 5）,InitialSize,MaxSize
+10001,小清月,Prefabs/Pawn/XiaoQingYuePawn,1,1,5
+50001,Laser,Prefabs/Effects/Laser,5,1,5

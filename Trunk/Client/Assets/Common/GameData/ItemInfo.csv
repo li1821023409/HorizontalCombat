@@ -1,0 +1,4 @@
+﻿道具id,"道具类型(None = 0,Weapon = 1,FarmTools = 2,Seed = 3,Food = 4,Special = 5)",道具名,道具详细介绍,道具创建路径,
+ItemID,ItemType,ItemName,ItemDetailedDescription,ItemPath（Assets/Resources）,
+1001,0,双手,勤劳的双手,Prefabs/Items/Hand,
+1002,2,锄头,一把普通的锄头，可以用于锄地，将草地改为农耕土地,Prefabs/Items/Hoe,
