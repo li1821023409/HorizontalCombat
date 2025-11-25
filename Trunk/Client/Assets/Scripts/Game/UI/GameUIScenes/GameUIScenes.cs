@@ -35,7 +35,7 @@ namespace WNGameBase
 
             //uiEventManager.AddListener(UIEvent.NotifyInitialPanel, NotifyInitialPanel);
 
-            uiEventManager.AddListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
+            uiEventManager.AddUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
         }
 
 
@@ -45,7 +45,7 @@ namespace WNGameBase
         /// </summary>
         protected virtual void RemoveListener()
         {
-
+            uiEventManager.RemoveUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
         }
 
         /// <summary>

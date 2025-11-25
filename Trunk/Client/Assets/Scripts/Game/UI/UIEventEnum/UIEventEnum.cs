@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UIFrame
 {
-    /*这个ui枚举用于相应游戏中的相关事件*/
+    /*这个ui枚举用于相应游戏中的相关UI事件*/
 
     /// <summary>
     /// UI事件枚举

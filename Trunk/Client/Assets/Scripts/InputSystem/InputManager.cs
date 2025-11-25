@@ -3,6 +3,7 @@
 /// </summary>
 using System.Collections;
 using System.Collections.Generic;
+using UIFrame;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -97,18 +98,17 @@ namespace WNGameBase
             int num;
             pathToNum.TryGetValue(path, out num); // 未找到则 num=0
 
-            m_IsPressNumberKeys = num != 0;
-            m_PressNumberKeys = m_IsPressNumberKeys ? num : -1;
-
             if (ctx.phase == InputActionPhase.Performed)
             {
                 m_IsPressNumberKeys = num != 0;
                 m_PressNumberKeys = m_IsPressNumberKeys ? num : 0;
+                UIEventManager.Instance.GamePlayEventEmit(GamePlayEvent.PressNumberKeys);
             }
             else if (ctx.phase == InputActionPhase.Canceled)
             {
                 m_IsPressNumberKeys = false;
                 m_PressNumberKeys = 0;
+                UIEventManager.Instance.GamePlayEventEmit(GamePlayEvent.ReleaseNumberKeys);
             }
         }
         #endregion

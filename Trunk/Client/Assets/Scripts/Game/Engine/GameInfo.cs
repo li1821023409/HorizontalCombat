@@ -100,8 +100,8 @@ namespace WNGameBase
                 m_GameUIScenes = GameUIScenes.Instance;
             m_GameUIScenes.Init();
 
-            UIEventManager.Instance.Emit(UIEvent.NotifyInitialPanel);
-            UIEventManager.Instance.Emit(UIEvent.NotifyDialogueRootPanel);
+            UIEventManager.Instance.UIEventEmit(UIEvent.NotifyInitialPanel);
+            UIEventManager.Instance.UIEventEmit(UIEvent.NotifyDialogueRootPanel);
         }
 
         /// <summary>

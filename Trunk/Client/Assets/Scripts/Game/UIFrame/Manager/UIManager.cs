@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using WNGameBase;
 
 namespace UIFrame
 {
@@ -528,8 +529,8 @@ namespace UIFrame
             RemovePanelFromCloseList(basePanel);
 
             // 发送事件通知
-            UIEventManager.Instance.Emit(UIEvent.PANEL_SHOW, basePanel.PanelName);
-            UIEventManager.Instance.Emit(UIEvent.PANEL_SHOW);
+            UIEventManager.Instance.UIEventEmit(UIEvent.PANEL_SHOW, basePanel.PanelName);
+            UIEventManager.Instance.UIEventEmit(UIEvent.PANEL_SHOW);
 
             return basePanel;
         }
@@ -582,8 +583,8 @@ namespace UIFrame
             }
 
             // 发送事件通知
-            UIEventManager.Instance.Emit(UIEvent.PANEL_HIDE, basePanel.PanelName);
-            UIEventManager.Instance.Emit(UIEvent.PANEL_HIDE);
+            UIEventManager.Instance.UIEventEmit(UIEvent.PANEL_HIDE, basePanel.PanelName);
+            UIEventManager.Instance.UIEventEmit(UIEvent.PANEL_HIDE);
         }
 
         /// <summary>
@@ -624,8 +625,8 @@ namespace UIFrame
             }
 
             // 发送事件通知
-            UIEventManager.Instance.Emit(UIEvent.PANEL_CLOSE, basePanel.PanelName);
-            UIEventManager.Instance.Emit(UIEvent.PANEL_CLOSE);
+            UIEventManager.Instance.UIEventEmit(UIEvent.PANEL_CLOSE, basePanel.PanelName);
+            UIEventManager.Instance.UIEventEmit(UIEvent.PANEL_CLOSE);
 
             // 根据销毁方式进行销毁
             if (basePanel.hasParent)

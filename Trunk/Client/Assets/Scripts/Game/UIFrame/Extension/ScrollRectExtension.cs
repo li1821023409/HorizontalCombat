@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using WNGameBase;
 
 namespace UIFrame
 {
@@ -40,7 +41,7 @@ namespace UIFrame
                     // 事件通知，按钮点击了
                     if (!string.IsNullOrEmpty(subKey))
                     {
-                        UIEventManager.Instance.Emit(UIEvent.SCROLL_VIEW_SCROLL, subKey);
+                        UIEventManager.Instance.UIEventEmit(UIEvent.SCROLL_VIEW_SCROLL, subKey);
                     }
                 }
             });

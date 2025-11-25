@@ -1,6 +1,7 @@
 ﻿// Create by DongShengLi At 2024/6/21
 using UnityEngine.UI;
 using UnityEngine.Events;
+using WNGameBase;
 
 namespace UIFrame
 {
@@ -20,9 +21,9 @@ namespace UIFrame
                 // 事件通知，按钮点击了
                 if (!string.IsNullOrEmpty(subKey))
                 {
-                    UIEventManager.Instance.Emit(UIEvent.BUTTON_CLICK, subKey);
+                    UIEventManager.Instance.UIEventEmit(UIEvent.BUTTON_CLICK, subKey);
                 }
-                UIEventManager.Instance.Emit(UIEvent.BUTTON_CLICK);
+                UIEventManager.Instance.UIEventEmit(UIEvent.BUTTON_CLICK);
             });
         }
 

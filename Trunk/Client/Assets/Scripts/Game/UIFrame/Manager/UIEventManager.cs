@@ -1,15 +1,17 @@
 ﻿// Create by DongShengLi At 2024/6/21
 using System.Collections.Generic;
+using UIFrame;
 
-namespace UIFrame
+namespace WNGameBase
 {
     /// <summary>
-    /// UI框架的事件管理器
+    /// 事件管理器
     /// </summary>
     public class UIEventManager : UnitySingleton<UIEventManager>
     {
-        public delegate void EventHandler(Param param);
-        private Dictionary<string, EventHandler> dic = new Dictionary<string, EventHandler>();
+        #region UI的事件框架
+        public delegate void UIEventHandler(Param param);
+        private Dictionary<string, UIEventHandler> uiEventDic = new Dictionary<string, UIEventHandler>();
 
         /// <summary>
         /// 添加事件监听
@@ -17,16 +19,16 @@ namespace UIFrame
         /// <param name="eventType"></param>
         /// <param name="key"></param>
         /// <param name="callback"></param>
-        public void AddListener(UIEvent eventType, EventHandler callback, string subkey = "")
+        public void AddUIEventListener(UIEvent eventType, UIEventHandler callback, string subkey = "")
         {
             var key = $"Event{eventType}_{subkey}";
-            if (this.dic.ContainsKey(key))
+            if (this.uiEventDic.ContainsKey(key))
             {
-                this.dic[key] += callback;
+                this.uiEventDic[key] += callback;
             }
             else
             {
-                this.dic.Add(key, callback);
+                this.uiEventDic.Add(key, callback);
             }
         }
 
@@ -36,17 +38,17 @@ namespace UIFrame
         /// <param name="eventType"></param>
         /// <param name="key"></param>
         /// <param name="callback"></param>
-        public void RemoveListener(UIEvent eventType, EventHandler callback, string subkey = "")
+        public void RemoveUIEventListener(UIEvent eventType, UIEventHandler callback, string subkey = "")
         {
             var key = $"Event{eventType}_{subkey}";
-            if (!this.dic.ContainsKey(key))
+            if (!this.uiEventDic.ContainsKey(key))
             {
                 return;
             }
-            this.dic[key] -= callback;
-            if (this.dic[key] == null)
+            this.uiEventDic[key] -= callback;
+            if (this.uiEventDic[key] == null)
             {
-                this.dic.Remove(key);
+                this.uiEventDic.Remove(key);
             }
         }
 
@@ -56,14 +58,75 @@ namespace UIFrame
         /// <param name="eventType"></param>
         /// <param name="key"></param>
         /// <param name="param"></param>
-        public void Emit(UIEvent eventType, string subkey = "", Param param = null)
+        public void UIEventEmit(UIEvent eventType, string subkey = "", Param param = null)
         {
             var key = $"Event{eventType}_{subkey}";
-            if (!this.dic.ContainsKey(key))
+            if (!this.uiEventDic.ContainsKey(key))
             {
                 return;
             }
-            this.dic[key](param);
+            this.uiEventDic[key](param);
         }
+        #endregion
+
+        #region GamePlay的事件框架
+        public delegate void GamePlayEventHandler(Param param);
+        private Dictionary<string, GamePlayEventHandler> gamePlayEventDic = new Dictionary<string, GamePlayEventHandler>();
+
+        /// <summary>
+        /// 添加事件监听
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="key"></param>
+        /// <param name="callback"></param>
+        public void AddGamePlayEventListener(GamePlayEvent eventType, GamePlayEventHandler callback, string subkey = "")
+        {
+            var key = $"Event{eventType}_{subkey}";
+            if (this.gamePlayEventDic.ContainsKey(key))
+            {
+                this.gamePlayEventDic[key] += callback;
+            }
+            else
+            {
+                this.gamePlayEventDic.Add(key, callback);
+            }
+        }
+
+        /// <summary>
+        /// 移除事件监听
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="key"></param>
+        /// <param name="callback"></param>
+        public void RemoveGamePlayEventListener(GamePlayEvent eventType, GamePlayEventHandler callback, string subkey = "")
+        {
+            var key = $"Event{eventType}_{subkey}";
+            if (!this.gamePlayEventDic.ContainsKey(key))
+            {
+                return;
+            }
+            this.gamePlayEventDic[key] -= callback;
+            if (this.gamePlayEventDic[key] == null)
+            {
+                this.gamePlayEventDic.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// 触发事件监听
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="key"></param>
+        /// <param name="param"></param>
+        public void GamePlayEventEmit(GamePlayEvent eventType, string subkey = "", Param param = null)
+        {
+            var key = $"Event{eventType}_{subkey}";
+            if (!this.gamePlayEventDic.ContainsKey(key))
+            {
+                return;
+            }
+            this.gamePlayEventDic[key](param);
+        }
+        #endregion
     }
 }

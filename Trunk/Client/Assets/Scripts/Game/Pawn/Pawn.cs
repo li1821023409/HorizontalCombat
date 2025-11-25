@@ -113,7 +113,6 @@ namespace WNGameBase
         public virtual void Tick()
         {
             Move();
-            SwitchItem();
             if (Time.deltaTime % 20 == 0)
             {
 
@@ -238,16 +237,6 @@ namespace WNGameBase
         {
             // 移动先这样简单处理
             m_Rigidbody2D.velocity = MoveSpeed * InputManager.Instance.MoveVector2;
-        }
-
-        public virtual void SwitchItem()
-        {
-            // 这里仅作测试使用
-            // TODO : 这种不断更新的数据过于频繁，之后在按下后触发相应委托即可，这块再看看
-            if (InputManager.Instance.IsPressNumberKeys)
-            {
-                Debug.Log("[aoandouli] PressNumberKeys : " + InputManager.Instance.PressNumberKeys);
-            }
         }
     }
 }

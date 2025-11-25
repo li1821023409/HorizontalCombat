@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UIFrame;
 using UnityEngine;
 using WNEngine;
 using static UnityEditor.Timeline.Actions.MenuPriority;
@@ -94,6 +95,18 @@ namespace WNGameBase
         {
             m_GameInfo = GameInfo.Instance;
             m_GameBuilder = m_GameInfo.m_GameBuilder;
+
+            AddListener();
+        }
+
+        public void AddListener()
+        {
+            UIEventManager.Instance.AddGamePlayEventListener(GamePlayEvent.PressNumberKeys, Test);
+        }
+
+        public void RemoveListener()
+        {
+            UIEventManager.Instance.RemoveGamePlayEventListener(GamePlayEvent.PressNumberKeys, Test);
         }
 
         /// <summary>
@@ -151,5 +164,12 @@ namespace WNGameBase
             m_GameBuilder.DestroyItem(itemInfo.itemId, itemObj);
         }
 
+        /// <summary>
+        /// TODO：测试用，后面删除
+        /// </summary>
+        public void Test(Param param)
+        {
+            SwitchItem("1002");
+        }
     }
 }
