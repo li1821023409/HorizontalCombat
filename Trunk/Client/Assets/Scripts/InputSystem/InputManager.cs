@@ -86,6 +86,9 @@ namespace WNGameBase
             m_InputControl.GamePlay.Move.canceled -= OnInputVlue;
         }
 
+        // 移动相关参数
+        public delegate void NumberKeysDelegate(int numberKeys);
+        public event NumberKeysDelegate NumberKeysEvent;
         private void OnUseItem(InputAction.CallbackContext ctx)
         {
             var control = ctx.control;
@@ -97,14 +100,14 @@ namespace WNGameBase
             {
                 m_IsPressNumberKeys = num != 0;
                 m_PressNumberKeys = m_IsPressNumberKeys ? num : 0;
-                UIEventManager.Instance.GamePlayEventEmit(GamePlayEvent.PressNumberKeys);
             }
             else if (ctx.phase == InputActionPhase.Canceled)
             {
                 m_IsPressNumberKeys = false;
                 m_PressNumberKeys = 0;
-                UIEventManager.Instance.GamePlayEventEmit(GamePlayEvent.ReleaseNumberKeys);
             }
+
+            NumberKeysEvent(m_PressNumberKeys);
         }
 
         // 移动相关参数

@@ -101,12 +101,12 @@ namespace WNGameBase
 
         public void AddListener()
         {
-            UIEventManager.Instance.AddGamePlayEventListener(GamePlayEvent.PressNumberKeys, Test);
+            InputManager.Instance.NumberKeysEvent += Test;
         }
 
         public void RemoveListener()
         {
-            UIEventManager.Instance.RemoveGamePlayEventListener(GamePlayEvent.PressNumberKeys, Test);
+            InputManager.Instance.NumberKeysEvent -= Test;
         }
 
         /// <summary>
@@ -167,9 +167,16 @@ namespace WNGameBase
         /// <summary>
         /// TODO：测试用，后面删除
         /// </summary>
-        public void Test(Param param)
+        public void Test(int numberKeys)
         {
-            SwitchItem("1002");
+            if (numberKeys == 1)
+            {
+                SwitchItem("1001");
+            }
+            else if (numberKeys == 2)
+            {
+                SwitchItem("1002");
+            }
         }
     }
 }
