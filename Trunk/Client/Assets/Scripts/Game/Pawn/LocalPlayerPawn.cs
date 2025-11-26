@@ -38,6 +38,14 @@ namespace WNGameBase
             pawnInfo.ItemParentTransform = GetItemTransform();
             // 本地玩家控制Pawn
             GameInfo.Instance.m_LocalPlayerPawnInfo = pawnInfo;
+
+            AddInputEvent();
+        }
+
+        public override void DestroyPawn()
+        {
+            base.DestroyPawn();
+            RemoveInputEvent();
         }
 
         public override void Tick()
@@ -45,10 +53,20 @@ namespace WNGameBase
             base.Tick();
         }
 
-        public virtual void Move(Vector2 inputVector)
+        protected virtual void AddInputEvent()
         {
-            m_MoveVector2 = MoveSpeed * inputVector;
-            m_Rigidbody2D.velocity = m_MoveVector2;
+            InputManager.Instance.MovementEvent += SetMoveParameters;
+        }
+
+        protected virtual void RemoveInputEvent()
+        {
+            InputManager.Instance.MovementEvent += SetMoveParameters;
+        }
+
+        // 设置移动参数
+        protected virtual void SetMoveParameters(Vector2 inputVector)
+        {
+            m_Rigidbody2D.velocity = MoveSpeed * inputVector;
         }
 
         /// <summary>

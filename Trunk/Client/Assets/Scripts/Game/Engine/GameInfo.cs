@@ -87,7 +87,6 @@ namespace WNGameBase
         /// </summary>
         protected virtual void Tick()
         {
-            m_InputManager.Tick();
             m_LocalPlayerPawn.Tick();
         }
 

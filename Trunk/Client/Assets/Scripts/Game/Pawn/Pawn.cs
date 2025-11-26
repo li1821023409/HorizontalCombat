@@ -112,7 +112,6 @@ namespace WNGameBase
         /// </summary>
         public virtual void Tick()
         {
-            Move();
             if (Time.deltaTime % 20 == 0)
             {
 
@@ -228,15 +227,6 @@ namespace WNGameBase
         public virtual void DestroyPawn()
         {
 
-        }
-
-        /// <summary>
-        /// Pawn移动相关处理
-        /// </summary>
-        public virtual void Move()
-        {
-            // 移动先这样简单处理
-            m_Rigidbody2D.velocity = MoveSpeed * InputManager.Instance.MoveVector2;
         }
     }
 }

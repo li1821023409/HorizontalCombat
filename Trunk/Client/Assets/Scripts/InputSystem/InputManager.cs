@@ -58,21 +58,12 @@ namespace WNGameBase
             InputControlEnable();
         }
 
-        public void Tick()
-        {
-            GetInputVlue();
-        }
+        //public void Tick()
+        //{
+        //    GetInputVlue();
+        //}
 
         #region 绑定玩家输入
-        /// <summary>
-        /// 获取输入值
-        /// </summary>
-        protected void GetInputVlue()
-        {
-            m_MoveVector2 = m_InputControl.GamePlay.Move.ReadValue<Vector2>();
-
-        }
-
         /// <summary>
         /// 绑定输入事件
         /// </summary>
@@ -80,6 +71,8 @@ namespace WNGameBase
         {
             m_InputControl.GamePlay.UseItem.performed += OnUseItem;
             m_InputControl.GamePlay.UseItem.canceled += OnUseItem;
+            m_InputControl.GamePlay.Move.performed += OnInputVlue;
+            m_InputControl.GamePlay.Move.canceled += OnInputVlue;
         }
 
         /// <summary>
@@ -89,6 +82,8 @@ namespace WNGameBase
         {
             m_InputControl.GamePlay.UseItem.performed -= OnUseItem;
             m_InputControl.GamePlay.UseItem.canceled -= OnUseItem;
+            m_InputControl.GamePlay.Move.performed -= OnInputVlue;
+            m_InputControl.GamePlay.Move.canceled -= OnInputVlue;
         }
 
         private void OnUseItem(InputAction.CallbackContext ctx)
@@ -110,6 +105,23 @@ namespace WNGameBase
                 m_PressNumberKeys = 0;
                 UIEventManager.Instance.GamePlayEventEmit(GamePlayEvent.ReleaseNumberKeys);
             }
+        }
+
+        // 移动相关参数
+        public delegate void MovementDelegate(Vector2 vector2);
+        public event MovementDelegate MovementEvent;
+        protected void OnInputVlue(InputAction.CallbackContext ctx)
+        {
+            if (ctx.phase == InputActionPhase.Performed)
+            {
+                m_MoveVector2 = ctx.ReadValue<Vector2>();
+            }
+            else if (ctx.phase == InputActionPhase.Canceled)
+            {
+                m_MoveVector2 = Vector2.zero;
+            }
+            // 这里执行相关的移动事件
+            MovementEvent(m_MoveVector2);
         }
         #endregion
 
