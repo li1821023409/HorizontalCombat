@@ -10,22 +10,14 @@ namespace WNGameBase
     /// <summary>
     /// 用来控制游戏运行的基本逻辑
     /// </summary>
-    public class GameInfo : UnitySingleton<GameInfo>
+    public class GameInfo : Singleton<GameInfo>
     {
-        private GameUIScenes m_GameUIScenes;
-        private CameraManager m_CameraManager;
-        public GameBuilder m_GameBuilder;
-        private ItemManager m_ItemManager;
-        protected TilemapInfo m_TilemapInfo;
-        private InputManager m_InputManager;
-
-        /// <summary>
-        /// 注意，游戏只有这里能获取，其他地方都不行
-        /// </summary>
-        public TilemapInfo TilemapInfo
-        {
-            get { return m_TilemapInfo; }
-        }
+        private GameUIScenes GameUIScenes;
+        private CameraManager CameraManager;
+        public GameBuilder GameBuilder;
+        private ItemManager ItemManager;
+        protected TilemapInfo TilemapInfo;
+        private InputManager InputManager;
 
         /// <summary>
         /// NonePawns列表
@@ -55,15 +47,6 @@ namespace WNGameBase
         public Pawn m_LocalPlayerPawn = null;
 
         public PawnInfo m_LocalPlayerPawnInfo = null;
-
-        protected virtual void Awake()
-        {
-        }
-
-        protected virtual void Start()
-        {
-
-        }
 
         public void Init()
         {
@@ -95,21 +78,20 @@ namespace WNGameBase
         /// </summary>
         public void BuilderGameUIScenes()
         {
-            if (m_GameUIScenes == null)
-                m_GameUIScenes = GameUIScenes.Instance;
-            m_GameUIScenes.Init();
+            if (GameUIScenes == null)
+                GameUIScenes = GameUIScenes.Instance;
+            GameUIScenes.Init();
 
             UIEventManager.Instance.UIEventEmit(UIEvent.NotifyInitialPanel);
-            UIEventManager.Instance.UIEventEmit(UIEvent.NotifyDialogueRootPanel);
+            //UIEventManager.Instance.UIEventEmit(UIEvent.NotifyDialogueRootPanel);
         }
 
         /// <summary>
-        /// 游戏基本UI构建
+        /// 游戏基本构建
         /// </summary>
         public void BuilderGameBuilder()
         {
-            // gameBuilder现在是空的，先创建一个
-            m_GameBuilder = new GameBuilder();
+            GameBuilder = GameBuilder.Instance;
         }
 
         /// <summary>
@@ -117,9 +99,9 @@ namespace WNGameBase
         /// </summary>
         public void BuilderCameraManager()
         {
-            if (m_CameraManager == null)
-                m_CameraManager = CameraManager.Instance;
-            m_CameraManager.Init();
+            if (CameraManager == null)
+                CameraManager = CameraManager.Instance;
+            CameraManager.Init();
         }
 
         /// <summary>
@@ -127,24 +109,24 @@ namespace WNGameBase
         /// </summary>
         public void BuilderItemManager()
         {
-            if (m_ItemManager == null)
-                m_ItemManager = ItemManager.Instance;
-            m_ItemManager.Init();
+            if (ItemManager == null)
+                ItemManager = ItemManager.Instance;
+            ItemManager.Init();
         }
 
         protected virtual void BuilderInputManager()
         {
-            if (m_InputManager == null)
-                m_InputManager = InputManager.Instance;
-            m_InputManager.Init();
+            if (InputManager == null)
+                InputManager = InputManager.Instance;
+            InputManager.Init();
         }
 
         protected virtual void LoadTilemap()
         {
-            m_TilemapInfo = new TilemapInfo();
-            if (m_TilemapInfo != null)
+            TilemapInfo = new TilemapInfo();
+            if (TilemapInfo != null)
             {
-                m_TilemapInfo.InitTilemap();
+                TilemapInfo.InitTilemap();
             }
         }
 
@@ -154,10 +136,30 @@ namespace WNGameBase
         protected virtual void LoadResource()
         {
             // 先读取AssetID资源文件
-            m_GameBuilder.LoadAssetIDData();
+            GameBuilder.LoadAssetIDData();
+        }
 
+        public void MovePawnToCurrentMap()
+        {
+            /*要确保再map地图加载完成并读取到TilemapGrid才可以*/
+            if (m_LocalPlayerPawn == null)
+            {
+                // 如果Pawn尚未创建则需要重新创建一个
+                LoadPawn();
+            }
+            else
+            {
+                GameBuilder.SceneLoader.MoveGameObjectToScene(m_LocalPlayerPawn.gameObject);
+            }
+        }
+
+        /// <summary>
+        /// 创建角色
+        /// </summary>
+        public virtual void LoadPawn()
+        {
             // 创建默认角色
-            Pawn pawn = m_GameBuilder.SpawnPawn(m_GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity);
+            Pawn pawn = GameBuilder.SpawnPawn(GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity);
             if (pawn != null)
             {
                 m_LocalPlayerPawns.Add(pawn);
@@ -165,12 +167,12 @@ namespace WNGameBase
             }
 
             // TODO : 开局默认的Item是Id = 1001手，这里仅作测试用，后续移除，不存在手这个Item
-            m_ItemManager.SwitchItem(m_GameBuilder.DefaultItemID);
+            ItemManager.SwitchItem(GameBuilder.DefaultItemID);
         }
 
         public virtual void SpawnPawn(string assetID, Vector3 location, Quaternion rotate)
         {
-            Pawn pawn = m_GameBuilder.SpawnPawn(m_GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity);
+            Pawn pawn = GameBuilder.SpawnPawn(GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity);
 
 
             switch (pawn.m_PawnInfo.assetType)
@@ -195,13 +197,12 @@ namespace WNGameBase
 
         public virtual void DestroyPawn(Pawn pawn)
         {
-            m_GameBuilder.DestroyPawn(pawn);
+            GameBuilder.DestroyPawn(pawn);
         }
 
         protected void ItemButtonInput(InputAction.CallbackContext Obj)
         {
 
         }
-
     }
 }

@@ -22,21 +22,19 @@ namespace WNGameBase
     /// </summary>
     public class ItemManager : UnitySingleton<ItemManager>
     {
-        public GameInfo m_GameInfo;
+        public GameInfo GameInfo;
         public GameBuilder m_GameBuilder;
-
-        public PawnInfo m_LocalPlayerPawnInfo;
         public PawnInfo LocalPlayerPawnInfo
         {
             get
             {
-                if (m_GameInfo.m_LocalPlayerPawnInfo != null)
+                if (GameInfo.m_LocalPlayerPawnInfo != null)
                 {
-                    return m_GameInfo.m_LocalPlayerPawnInfo;
+                    return GameInfo.m_LocalPlayerPawnInfo;
                 }
                 else
                 {
-                    Debug.LogError("[aoandouli] (m_GameInfo.localPlayerPawnInfo = null");
+                    Debug.LogWarning("[aoandouli] (m_GameInfo.localPlayerPawnInfo = null");
                 }
                 return null;
             }
@@ -45,7 +43,6 @@ namespace WNGameBase
         /// <summary>
         /// 当前使用的道具信息
         /// </summary>
-        private ItemInfoData m_CurrentItem;
         public ItemInfoData CurrentItem
         {
             set
@@ -73,7 +70,6 @@ namespace WNGameBase
         /// <summary>
         /// 道具的父对象
         /// </summary>
-        private Transform m_ItemParentTransform = null;
         public Transform ItemParentTransform
         {
             get
@@ -93,9 +89,8 @@ namespace WNGameBase
 
         public void Init()
         {
-            m_GameInfo = GameInfo.Instance;
-            m_GameBuilder = m_GameInfo.m_GameBuilder;
-
+            GameInfo = GameInfo.Instance;
+            m_GameBuilder = GameInfo.GameBuilder;
             AddListener();
         }
 
@@ -153,7 +148,7 @@ namespace WNGameBase
         /// </summary>
         public void SetItemData(GameObject m_CurrentItemGameObject)
         {
-            m_GameInfo.m_LocalPlayerPawn.SetItemLayer(m_CurrentItemGameObject);
+            GameInfo.m_LocalPlayerPawn.SetItemLayer(m_CurrentItemGameObject);
         }
 
         /// <summary>

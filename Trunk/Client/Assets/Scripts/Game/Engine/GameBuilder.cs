@@ -3,72 +3,80 @@ using System.Collections.Generic;
 using UIFrame;
 using UnityEngine;
 using WNGameBase;
+using UnityEngine.SceneManagement;
+using static UnityEditor.Progress;
 
 namespace WNEngine
 {
-    public enum AttackableTargetLevel
+    public enum AssetTypeEnum
     {
         None,
-        LocalPlayer,        // 本地玩家
-        FriendlyForces,     // 友军
-        Enemy,              // 敌人
-        SceneObject,        // 场景对象
+        Instances,
+        BoolCanPlaceFumiture,
+        BoolCanFropItemPool,
+        BoolDiggable,
+        BoolPath,
+        BoolNpcObstacie,
+        EffectInfo = 20, // 特效比较特殊，特殊处理一下
+        Dialogue = 50,  // 从这里开始，后面的资产类型都不需要实例化
     }
 
-    public class GameBuilder
+    public class GameBuilder : UnitySingleton<GameBuilder>
     {
         #region 基础数据
-        ///// <summary>
-        ///// PlayerInfo类型
-        ///// </summary>
-        //public System.Type PlayerInfoType;
+        /// <summary>
+        /// 是否开始游戏
+        /// </summary>
+        public bool IsStartGame = false;
 
-        ///// <summary>
-        ///// UIScene类型
-        ///// </summary>
-        //public System.Type UISceneType;
+        private const string m_PersistentSceneName = "PersistentScene";
+        public string PersistentSceneName
+        {
+            get
+            {
+                return m_PersistentSceneName;
+            }
+        }
+        /// <summary>
+        /// Scene
+        /// </summary>
+        private string m_MapSceneName = "Outdoors";
+        public string MapSceneName
+        {
+            set { m_MapSceneName = value; }
+            get 
+            { 
+                return m_MapSceneName; 
+            }
+        }
+
+        public SceneLoader SceneLoader;
 
         /// <summary>
-        /// 搭建UIScene场景，后续完善
+        /// 搭建Scene场景，后续完善
         /// </summary>
-        //public virtual UIScene BuildGameUIScene()
-        //{
-        //    return ReflectUtility.CreateInstance(UISceneType) as UIScene;
-        //}
+        public virtual void BuildGameScene()
+        {
+            //return ReflectUtility.CreateInstance(UISceneType) as UIScene;
+            BuildGameInfo(SceneLoader.BuilderGameInfo());
+        }
 
         /// <summary>
         /// 创建gameInfo，后续完善
         /// </summary>
-        //public virtual void BuildGameInfo(GameInfo gameInfo) { DoBuildGameInfo(gameInfo); }
+        public virtual void BuildGameInfo(GameInfo gameInfo) { DoBuildGameInfo(gameInfo); }
 
-        //protected virtual void DoBuildGameInfo(GameInfo gameInfo) { }
+        protected virtual void DoBuildGameInfo(GameInfo gameInfo) 
+        {
+            gameInfo.Init();
+        }
 
         /// <summary>
-        /// pawn根节点
+        /// 切换Map场景后，从场景中获取的TilemapGrid，用于从池对象中创建并移动到Map场景的对应位置
         /// </summary>
-        private Transform pawnRoot;
-        /// <summary>
-        /// 界面层级节点，None
-        /// </summary>
-        private Transform NoneLevel;
-        /// <summary>
-        /// 界面层级节点，LocalPlayer
-        /// </summary>
-        private Transform LocalPlayerLevel;
-        /// <summary>
-        /// 界面层级节点，FriendlyForces
-        /// </summary>
-        private Transform FriendlyForcesLevel;
-        /// <summary>
-        /// 界面层级节点，Enemy
-        /// </summary>
-        private Transform EnemyLevel;
-        /// <summary>
-        /// 界面层级节点，SceneObject
-        /// </summary>
-        private Transform SceneObjectLevel;
+        public TilemapGrid TilemapGrid;
 
-        protected ObjectPool objectPool = ObjectPool.Instance;
+        protected ObjectPool ObjectPool;
 
         /// <summary>
         /// 将Pawn的数据存成字典，方便后续读取
@@ -98,6 +106,37 @@ namespace WNEngine
         protected Dictionary<string, ItemInfoData> m_ItemInfo = new Dictionary<string, ItemInfoData>();
         protected string m_ItemInfoName = "ItemInfo";
 
+        /*下面的是PersistentScene一直存在的场景中防止池缓存的层级*/
+        /// <summary>
+        /// Pool根节点
+        /// </summary>
+        private Transform PoolRoot;
+        /// <summary>
+        /// 界面层级节点:Instances 这里用于创建Pawn
+        /// </summary>
+        public Transform InstancesPoolLevel;
+        /*下面的层级节点用于创建掉落物、家具、NPC等*/
+        /// <summary>
+        /// 界面层级节点:BoolCanPlaceFumiture
+        /// </summary>
+        public Transform BoolCanPlaceFumiturePoolLevel;
+        /// <summary>
+        /// 界面层级节点:BoolCanFropItem
+        /// </summary>
+        public Transform BoolCanFropItemPoolLevel;
+        /// <summary>
+        /// 界面层级节点:BoolDiggable
+        /// </summary>
+        public Transform BoolDiggablePoolLevel;
+        /// <summary>
+        /// 界面层级节点:BoolPath
+        /// </summary>
+        public Transform BoolPathPoolLevel;
+        /// <summary>
+        /// 界面层级节点:BoolNpcObstacie
+        /// </summary>
+        public Transform BoolNpcObstaciePoolLevel;
+
         /// <summary>
         /// 默认PawnID为10001
         /// </summary>
@@ -115,6 +154,18 @@ namespace WNEngine
         {
             get { return m_DefaultItemID; }
         }
+        #endregion
+
+        void Awake()
+        {
+            SceneLoader = SceneLoader.Instance;
+            ObjectPool = ObjectPool.Instance;
+            // 确保不会根据场景切换而销毁
+            DontDestroyOnLoad(this);
+        }
+
+        #region 加载场景
+        // TODO：先跳转场景，加载对应场景的TilemapGrid，然后数据初始化获取对应参数，这里先不动态加载TilemapGrid了，直接将TilemapGrid放在场景中，加载场景完成后直接初始化获取对应TilemapGrid层
         #endregion
 
         #region 数据初始化
@@ -142,41 +193,41 @@ namespace WNEngine
                     {
                         continue;
                     }
-                    objectPool.AddPool(data.id, prefab, GetAttackableTargetLevel(int.Parse(data.assetType)), int.Parse(data.initialSize), int.Parse(data.maxSize));
+                    ObjectPool.AddPool(data.id, prefab, GetPoolLevel(int.Parse(data.type)), int.Parse(data.initialSize), int.Parse(data.maxSize));
                 }
-                //else
-                //{
-                //    Debug.LogError($"AssetIDData with assetId '{key}' doesn't exist.");
-                //}
+                else
+                {
+                    Debug.LogError($"AssetIDData with assetId '{key}' doesn't exist.");
+                }
             }
-            objectPool.InitializePools();
+            ObjectPool.InitializePools();
 
         }
 
         private void InitPawnLevel()
         {
-            if (pawnRoot == null)
+            if (PoolRoot == null)
             {
-                GameObject obj = new GameObject("PawnRoot");
-                pawnRoot = obj.transform;
+                GameObject obj = new GameObject("PoolRoot");
+                PoolRoot = obj.transform;
             }
-
-            NoneLevel = CreateAttackableTargetLevel(GetAttackableTargetLevelName(AttackableTargetLevel.None), (int)AttackableTargetLevel.None);
-            LocalPlayerLevel = CreateAttackableTargetLevel(GetAttackableTargetLevelName(AttackableTargetLevel.LocalPlayer), (int)AttackableTargetLevel.LocalPlayer);
-            FriendlyForcesLevel = CreateAttackableTargetLevel(GetAttackableTargetLevelName(AttackableTargetLevel.FriendlyForces), (int)AttackableTargetLevel.FriendlyForces);
-            EnemyLevel = CreateAttackableTargetLevel(GetAttackableTargetLevelName(AttackableTargetLevel.Enemy), (int)AttackableTargetLevel.Enemy);
-            SceneObjectLevel = CreateAttackableTargetLevel(GetAttackableTargetLevelName(AttackableTargetLevel.SceneObject), (int)AttackableTargetLevel.SceneObject);
+            InstancesPoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.Instances), (int)AssetTypeEnum.Instances);
+            BoolCanPlaceFumiturePoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolCanPlaceFumiture), (int)AssetTypeEnum.BoolCanPlaceFumiture);
+            BoolCanFropItemPoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolCanFropItemPool), (int)AssetTypeEnum.BoolCanFropItemPool);
+            BoolDiggablePoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolDiggable), (int)AssetTypeEnum.BoolDiggable);
+            BoolPathPoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolPath), (int)AssetTypeEnum.BoolPath);
+            BoolNpcObstaciePoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolNpcObstacie), (int)AssetTypeEnum.BoolNpcObstacie);
         }
 
         /// <summary>
         /// 创建可攻击对象层级，对Pawn进行分层存放
         /// </summary>
-        private Transform CreateAttackableTargetLevel(string name, int level)
+        private Transform CreatePoolLevel(string name, int level)
         {
             GameObject obj = new GameObject(name);
-            if (pawnRoot != null)
+            if (PoolRoot != null)
             {
-                obj.transform.SetParent(pawnRoot.transform);
+                obj.transform.SetParent(PoolRoot.transform);
                 return obj.transform;
             }
             else
@@ -186,57 +237,84 @@ namespace WNEngine
         }
 
         /// <summary>
-        /// 获取可攻击对象层级名称
+        /// 获取池对象层级
         /// </summary>
         /// <param name="level"></param>
         /// <returns></returns>
-        private string GetAttackableTargetLevelName(AttackableTargetLevel level)
+        private string GetPoolLevelName(AssetTypeEnum level)
         {
-            string name = null;
             switch (level)
             {
-                case AttackableTargetLevel.None:
-                    name = "None";
-                    break;
-                case AttackableTargetLevel.LocalPlayer:
-                    name = "LocalPlayer";
-                    break;
-                case AttackableTargetLevel.FriendlyForces:
-                    name = "FriendlyForces";
-                    break;
-                case AttackableTargetLevel.Enemy:
-                    name = "Enemy";
-                    break;
-                case AttackableTargetLevel.SceneObject:
-                    name = "SceneObject";
-                    break;
+                case AssetTypeEnum.Instances:
+                    return "InstancesPoolLevel";
+                case AssetTypeEnum.BoolCanPlaceFumiture:
+                    return "BoolCanPlaceFumiturePoolLevel";
+                case AssetTypeEnum.BoolCanFropItemPool:
+                    return "BoolCanFropItemPoolLevel";
+                case AssetTypeEnum.BoolDiggable:
+                    return "BoolDiggablePoolLevel";
+                case AssetTypeEnum.BoolPath:
+                    return "BoolPathPoolLevel";
+                case AssetTypeEnum.BoolNpcObstacie:
+                    return "BoolNpcObstaciePoolLevel";
                 default:
-                    break;
+                    return null;
             }
-            return name;
         }
 
         /// <summary>
-        /// 获取可攻击对象层级
+        /// 获取池对象层级
         /// </summary>
         /// <param name="level"></param>
         /// <returns></returns>
-        private Transform GetAttackableTargetLevel(int level)
+        private Transform GetPoolLevel(int level)
         {
+            if (TilemapGrid == null)
+                return null;
             switch (level)
             {
-                case 0:
-                    return NoneLevel;
                 case 1:
-                    return LocalPlayerLevel;
+                    return InstancesPoolLevel;
                 case 2:
-                    return FriendlyForcesLevel;
+                    return BoolCanPlaceFumiturePoolLevel;
                 case 3:
-                    return EnemyLevel;
+                    return BoolCanFropItemPoolLevel;
                 case 4:
-                    return SceneObjectLevel;
+                    return BoolDiggablePoolLevel;
+                case 5:
+                    return BoolPathPoolLevel;
+                case 6:
+                    return BoolNpcObstaciePoolLevel;
                 default:
-                    return NoneLevel;
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// 获取Map场景中的对象层级
+        /// </summary>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        private Transform GetTilemapGridLevel(int level)
+        {
+            if (TilemapGrid == null)
+                return null;
+            switch (level)
+            {
+                case 1:
+                    return TilemapGrid.InstancesLevel;
+                case 2:
+                    return TilemapGrid.BoolCanPlaceFumitureLevel;
+                case 3:
+                    return TilemapGrid.BoolCanFropItemLevel;
+                case 4:
+                    return TilemapGrid.BoolDiggableLevel;
+                case 5:
+                    return TilemapGrid.BoolPathLevel;
+                case 6:
+                    return TilemapGrid.BoolNpcObstacieLevel;
+                default:
+                    return null;
             }
         }
         #endregion
@@ -256,7 +334,7 @@ namespace WNEngine
             {
                 GameObject pawnName = null;
 
-                pawnName = ObjectPool.Instance.SpawnFromPool(assetId, position, rotation);
+                pawnName = ObjectPool.SpawnFromPool(assetId, position, rotation, GetTilemapGridLevel(pawnInfo.assetType));
 
                 if (pawnName != null)
                 {
@@ -288,7 +366,7 @@ namespace WNEngine
 
                 pawnInfo.id = pawnInfoData.id;
                 pawnInfo.name = pawnInfoData.name;
-                int.TryParse(pawnInfoData.assetType, out pawnInfo.assetType);
+                int.TryParse(pawnInfoData.type, out pawnInfo.assetType);
                 float.TryParse(pawnInfoData.healthPoint, out pawnInfo.healthPoint);
                 float.TryParse(pawnInfoData.attack, out pawnInfo.attack);
                 float.TryParse(pawnInfoData.moveSpeed, out pawnInfo.moveSpeed);
@@ -319,7 +397,7 @@ namespace WNEngine
                 pawn.DestroyPawn();
 
                 // 返回对象池
-                ObjectPool.Instance.ReturnToPool(pawn.m_PawnInfo.id, pawn.gameObject);
+                ObjectPool.ReturnToPool(pawn.m_PawnInfo.id, pawn.gameObject);
             }
         }
         #endregion
@@ -328,7 +406,7 @@ namespace WNEngine
         /// <summary>
         /// 创建Effect对象
         /// </summary>
-        public void SpawnEffect(string assetId, Vector3 position, Quaternion rotation)
+        public void SpawnEffect(string assetId, Vector3 position, Quaternion rotation, Transform parent)
         {
             EffectInfoData effectInfo = ContainsEffectInfo(assetId);
 
@@ -337,7 +415,7 @@ namespace WNEngine
             if (effectInfo != null)
             {
                 GameObject effectName = null;
-                effectName = ObjectPool.Instance.SpawnFromPool(assetId, position, rotation);
+                effectName = ObjectPool.SpawnFromPool(assetId, position, rotation, parent);
 
                 if (effectName != null)
                 {
@@ -377,19 +455,19 @@ namespace WNEngine
         /// <summary>
         /// 创建Item对象
         /// </summary>
-        public GameObject SpawnItem(string assetId, Vector3 position, Quaternion rotation, Transform parent = null, int initialSize = 1, int maxSize = 1)
+        public GameObject SpawnItem(string assetId, Vector3 position, Quaternion rotation, Transform parent, int initialSize = 1, int maxSize = 1)
         {
             GameObject item = null;
 
-            if (ObjectPool.Instance.PoolContains(assetId))
+            if (ObjectPool.PoolContains(assetId))
             {
-                item = ObjectPool.Instance.SpawnFromPool(assetId, position, rotation);
+                item = ObjectPool.SpawnFromPool(assetId, position, rotation, parent);
             }
             else
             {
                 // 没有获取说明没有添加该对象到池中，这里添加一下（也可以不添加，后面做一下处理）
                 ItemInfoData data = m_ItemInfo[assetId];
-                item = ObjectPool.Instance.CreateAndAddPoolObject(assetId, data.itemPath, position, rotation, parent);
+                item = ObjectPool.CreateAndAddPoolObject(assetId, data.itemPath, position, rotation, parent);
                 if (item == null)
                 {
                     Debug.LogError($"SpawnActor with assetId '{assetId}' doesn't exist.");
@@ -418,18 +496,21 @@ namespace WNEngine
             return item;
         }
 
-        /// <summary>
-        /// pawn死亡，返回对象池
-        /// </summary>
         public void DestroyItem(string itemId, GameObject item)
         {
             if (!string.IsNullOrEmpty(itemId) && item != null)
             {
                 // 返回对象池
-                ObjectPool.Instance.ReturnToPool(itemId, item);
+                ObjectPool.ReturnToPool(itemId, item);
             }
         }
         #endregion
+
+        public void SetObjParent(GameObject Obj)
+        {
+            // 这里设置Obj的父对象
+            /*这里的想法是将所有的info都加上*/
+        }
     }
 }
 

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UIFrame;
 using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using WNGameBase;
@@ -16,7 +17,7 @@ namespace WNGameBase
         /// <summary>
         /// 玩家控制的pawn对象需要获取输入参数
         /// </summary>
-        public InputControl m_InputControl { get; private set; }
+        public InputControl InputControl { get; private set; }
 
         protected Vector2 m_MoveVector2 = Vector2.zero;
         /// <summary>
@@ -54,7 +55,7 @@ namespace WNGameBase
 
         public void Init()
         {
-            m_InputControl = new InputControl();
+            InputControl = new InputControl();
             InputControlEnable();
         }
 
@@ -69,10 +70,10 @@ namespace WNGameBase
         /// </summary>
         protected void BindInputEvent()
         {
-            m_InputControl.GamePlay.UseItem.performed += OnUseItem;
-            m_InputControl.GamePlay.UseItem.canceled += OnUseItem;
-            m_InputControl.GamePlay.Move.performed += OnInputVlue;
-            m_InputControl.GamePlay.Move.canceled += OnInputVlue;
+            InputControl.GamePlay.UseItem.performed += OnUseItem;
+            InputControl.GamePlay.UseItem.canceled += OnUseItem;
+            InputControl.GamePlay.Move.performed += OnInputVlue;
+            InputControl.GamePlay.Move.canceled += OnInputVlue;
         }
 
         /// <summary>
@@ -80,10 +81,10 @@ namespace WNGameBase
         /// </summary>
         protected void RemoveInputEvent()
         {
-            m_InputControl.GamePlay.UseItem.performed -= OnUseItem;
-            m_InputControl.GamePlay.UseItem.canceled -= OnUseItem;
-            m_InputControl.GamePlay.Move.performed -= OnInputVlue;
-            m_InputControl.GamePlay.Move.canceled -= OnInputVlue;
+            InputControl.GamePlay.UseItem.performed -= OnUseItem;
+            InputControl.GamePlay.UseItem.canceled -= OnUseItem;
+            InputControl.GamePlay.Move.performed -= OnInputVlue;
+            InputControl.GamePlay.Move.canceled -= OnInputVlue;
         }
 
         // 移动相关参数
@@ -107,7 +108,14 @@ namespace WNGameBase
                 m_PressNumberKeys = 0;
             }
 
-            NumberKeysEvent(m_PressNumberKeys);
+            if (NumberKeysEvent != null)
+            {
+                NumberKeysEvent(m_PressNumberKeys);
+            }
+            else
+            {
+                Debug.LogWarning("InputManager.OnUseItem NumberKeysEvent Null");
+            }
         }
 
         // 移动相关参数
@@ -124,21 +132,28 @@ namespace WNGameBase
                 m_MoveVector2 = Vector2.zero;
             }
             // 这里执行相关的移动事件
-            MovementEvent(m_MoveVector2);
+            if (MovementEvent != null)
+            {
+                MovementEvent(m_MoveVector2);
+            }
+            else
+            {
+                Debug.LogWarning("InputManager.OnInputVlue MovementEvent Null");
+            }
         }
         #endregion
 
         #region 输入系统的启用与结束
         protected virtual void InputControlEnable()
         {
-            m_InputControl.Enable();
+            InputControl.Enable();
             BindInputEvent();
         }
 
         protected virtual void InputControlDisable()
         {
             RemoveInputEvent();
-            m_InputControl.Disable();
+            InputControl.Disable();
         }
         #endregion
     }

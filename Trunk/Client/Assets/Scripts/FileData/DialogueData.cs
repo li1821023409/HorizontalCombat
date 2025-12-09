@@ -7,6 +7,7 @@ public class DialogueData : FileData
 
     public override void Init(string[] datas)
     {
+        base.Init(datas);
         name = datas[0];
         diaLogue = datas[1];
     }

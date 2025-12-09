@@ -30,13 +30,6 @@ namespace WNGameBase
        FlickerAttack = 3,  // 闪烁攻击（可能因为武器或某种原因在闪烁时造成伤害，这里分离出来）
     }
 
-    public enum SortingLayerIndex
-    {
-        Default = 0,
-        LocalPlayer = 1,
-        Pawn = 2,
-    }
-
     /// <summary>
     /// pawn脚本，所有兵卒脚本的根脚本
     /// </summary>
@@ -160,36 +153,19 @@ namespace WNGameBase
         /// <returns></returns>
         public virtual string SetRenderingLayerMask(int assetType)
         {
-            // 根据资产类型区分层级，目前Pawn的层级只区分本地玩家和其他Pawn（Npc等，后面如果支持联机的话3P也是Pawn），其他的都是0
-            switch (assetType)
-            {
-                case 1:
-                    return "LocalPlayer";
-                case 2:
-                    return "Pawn";
-                default:
-                    return "Default";
-            }
+            // 玩家渲染层级应该为Instances示例层
+            return "Instances";
         }
 
         /// <summary>
-        /// 设置SpriteRenderer渲染层级
+        /// 设置SpriteRenderer图层排序
         /// </summary>
         /// <param name="assetType"></param>
         /// <returns></returns>
         public virtual int SetRenderingLayerMaskIndex(int assetType)
         {
-            // 根据资产类型区分层级，目前Pawn的层级只区分本地玩家和其他Pawn（Npc等，后面如果支持联机的话3P也是Pawn），其他的都是0
-            // 注意本地玩家层级应该最高，所以3
-            switch (assetType)
-            {
-                case 1:
-                    return 3;
-                case 2:
-                    return 2;
-                default:
-                    return 0;
-            }
+            // 图像排序默认用TilemapRenderer的Mode排序，一般不需要自己修改
+            return 0;
         }
 
         /// <summary>

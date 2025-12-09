@@ -1,8 +1,6 @@
 public class PawnInfoData : FileData
 {
-    public string id;
     public string name;
-    public string assetType;
     public string healthPoint;
     public string attack;
     public string moveSpeed;
@@ -12,9 +10,8 @@ public class PawnInfoData : FileData
 
     public override void Init(string[] datas)
     {
-        id = datas[0];
-        name = datas[1];
-        assetType = datas[2];
+        base.Init(datas);
+        name = datas[2];
         healthPoint = datas[3];
         attack = datas[4];
         moveSpeed = datas[5];

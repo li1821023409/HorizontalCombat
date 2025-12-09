@@ -69,9 +69,3 @@ TagManager:
   - name: Collisions
     uniqueID: 1401663569
     locked: 0
-  - name: Pawn
-    uniqueID: 3488130869
-    locked: 0
-  - name: LocalPlayer
-    uniqueID: 1721423265
-    locked: 0

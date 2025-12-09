@@ -150,7 +150,7 @@ namespace WNGameBase
         /// <summary>
         /// 从池中获取对象
         /// </summary>
-        public GameObject SpawnFromPool(string assetId, Vector3 position, Quaternion rotation, Transform transform = null)
+        public GameObject SpawnFromPool(string assetId, Vector3 position, Quaternion rotation, Transform parent)
         {
             if (!poolDictionary.ContainsKey(assetId))
             {
@@ -185,7 +185,7 @@ namespace WNGameBase
 
                 GameObject newObj = CreateNewPoolObject(poolInfo);
                 Debug.Log($"Pool '{assetId}' expanded with one new object. Total: {activeCountByAssetId[assetId] + objectPool.Count}");
-                return SetupPooledObject(newObj, position, rotation);
+                return SetupPooledObject(newObj, position, rotation, parent);
             }
 
             // 取出并设置对象
@@ -199,14 +199,16 @@ namespace WNGameBase
                 Debug.LogWarning($"Object in pool '{assetId}' was destroyed. Created a new one.");
             }
 
-            return SetupPooledObject(pooledObject, position, rotation);
+            return SetupPooledObject(pooledObject, position, rotation, parent);
         }
 
         /// <summary>
         /// 设置池对象的位置、旋转并激活
         /// </summary>
-        private GameObject SetupPooledObject(GameObject obj, Vector3 position, Quaternion rotation)
+        private GameObject SetupPooledObject(GameObject obj, Vector3 position, Quaternion rotation, Transform parent)
         {
+            obj.transform.parent = parent;
+
             // 设置变换
             obj.transform.position = position;
             obj.transform.rotation = rotation;
@@ -237,6 +239,10 @@ namespace WNGameBase
 
             // 更新活跃对象计数
             activeCountByAssetId[assetId] = Mathf.Max(0, activeCountByAssetId[assetId] - 1);
+
+            // 放到池缓存层的对应层
+            Pool poolInfo = pools.Find(p => p.assetId == assetId);
+            obj.transform.parent = poolInfo.poolParent;
 
             // 重置对象状态
             obj.SetActive(false);
