@@ -147,10 +147,7 @@ namespace WNGameBase
                 // 如果Pawn尚未创建则需要重新创建一个
                 LoadPawn();
             }
-            else
-            {
-                GameBuilder.SceneLoader.MoveGameObjectToScene(m_LocalPlayerPawn.gameObject);
-            }
+            GameBuilder.SceneLoader.MoveGameObjectToScene(m_LocalPlayerPawn.gameObject, m_LocalPlayerPawnInfo.id);
         }
 
         /// <summary>

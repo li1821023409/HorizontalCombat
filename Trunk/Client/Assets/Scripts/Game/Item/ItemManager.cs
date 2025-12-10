@@ -23,7 +23,7 @@ namespace WNGameBase
     public class ItemManager : UnitySingleton<ItemManager>
     {
         public GameInfo GameInfo;
-        public GameBuilder m_GameBuilder;
+        public GameBuilder GameBuilder;
         public PawnInfo LocalPlayerPawnInfo
         {
             get
@@ -90,7 +90,7 @@ namespace WNGameBase
         public void Init()
         {
             GameInfo = GameInfo.Instance;
-            m_GameBuilder = GameInfo.GameBuilder;
+            GameBuilder = GameInfo.GameBuilder;
             AddListener();
         }
 
@@ -125,7 +125,7 @@ namespace WNGameBase
 
         public void SwitchItem(string ItemId)
         {
-            if (ItemParentTransform != null && (CurrentItem == null || ItemId != CurrentItem.itemId))
+            if (ItemParentTransform != null && (CurrentItem == null || ItemId != CurrentItem.id))
             {
                 // 如果添加为当前使用道具，则需要先移除手里的，再创建该对象
                 if (CurrentItem != null && m_CurrentItemGameObject != null)
@@ -133,12 +133,12 @@ namespace WNGameBase
                     RemoveItem(CurrentItem, m_CurrentItemGameObject);
                 }
 
-                ItemInfoData itemInfo = m_GameBuilder.ContainsItemInfo(ItemId);
+                ItemInfoData itemInfo = GameBuilder.ContainsItemInfo(ItemId);
 
                 AddItem(itemInfo);
 
                 CurrentItem = itemInfo;
-                m_CurrentItemGameObject = m_GameBuilder.SpawnItem(itemInfo.itemId, Vector3.zero, Quaternion.identity, ItemParentTransform);
+                m_CurrentItemGameObject = GameBuilder.SpawnItem(itemInfo.id, Vector3.zero, Quaternion.identity, ItemParentTransform);
                 SetItemData(m_CurrentItemGameObject);
             }
         }
@@ -156,7 +156,7 @@ namespace WNGameBase
         /// </summary>
         public void RemoveItem(ItemInfoData itemInfo, GameObject itemObj)
         {
-            m_GameBuilder.DestroyItem(itemInfo.itemId, itemObj);
+            GameBuilder.DestroyItem(itemInfo.id, itemObj);
         }
 
         /// <summary>
@@ -171,6 +171,18 @@ namespace WNGameBase
             else if (numberKeys == 2)
             {
                 SwitchItem("1002");
+            }
+
+            if (numberKeys == 6)
+            {
+                GameBuilder.MapSceneName = "Scene_Farm";
+                GameBuilder.SceneLoader.BuildMapScene(GameBuilder.MapSceneName);
+            }
+
+            if (numberKeys == 7)
+            {
+                GameBuilder.MapSceneName = "Scene_Farm 1";
+                GameBuilder.SceneLoader.BuildMapScene(GameBuilder.MapSceneName);
             }
         }
     }

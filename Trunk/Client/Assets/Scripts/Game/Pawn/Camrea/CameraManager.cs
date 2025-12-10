@@ -62,7 +62,7 @@ namespace WNGameBase
             // 初始化的时候从场景获取UI相机和本地玩家相机
             // 本地玩家相机默认为MainCamera
             MainCamera = Camera.main;
-            UICamera = GameObject.Find("UICamera").GetComponent<Camera>();
+            //UICamera = GameObject.Find("UICamera").GetComponent<Camera>();
 
             // TODU : 小地图相机现在应该是空，后面做小地图的时候再补上
             //MiniMapCamera = GameObject.Find("MiniMapCamera").GetComponent<Camera>();

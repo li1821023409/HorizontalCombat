@@ -1,3 +1,3 @@
-﻿资产编号,名字,资产路径,资产类型,初始化数量,最大数量
-Id,Name,AssetPath（Assets/Resources/）,"AssetType（None = 0，InstancesLevel = 1，BoolCanPlaceFumitureLevel = 2，BoolCanFropItemLevel = 3，BoolDiggableLevel = 4，BoolPathLevel = 5, BoolNpcObstacieLevel = 6）",InitialSize,MaxSize
-10001,小清月,Prefabs/Pawn/XiaoQingYuePawn,1,1,1
+﻿资产编号,资产类型,名字,资产路径,初始化数量,最大数量
+Id,AssetType（详细查看AssetTypeEnum枚举类型）,Name,AssetPath（Assets/Resources/）,InitialSize,MaxSize
+10001,1,小清月,Prefabs/Pawn/XiaoQingYuePawn,1,1

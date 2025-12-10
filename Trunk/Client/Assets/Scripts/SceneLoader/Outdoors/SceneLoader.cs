@@ -99,16 +99,6 @@ namespace WNGameBase
             if (mapScene == string.Empty)
                 yield break;
 
-            // 新map场景加载前先卸载旧的场景
-            if (m_CurrentMapScene != string.Empty)
-            {
-                AsyncOperation unLoadSceen = SceneManager.UnloadSceneAsync(m_CurrentMapScene);
-                while (!unLoadSceen.isDone)
-                {
-                    yield return null;
-                }
-            }
-
             // TODO：感觉可以考虑把所有场景都加载出来，然后切换需要的场景？？? 以后再看吧
 
             // 加载新的map场景
@@ -123,31 +113,55 @@ namespace WNGameBase
             Scene currentMapScene = SceneManager.GetSceneByName(mapScene);
             if (currentMapScene != null && currentMapScene.isLoaded)
             {
-                m_CurrentMapScene = mapScene;
                 SceneManager.SetActiveScene(currentMapScene);
                 Debug.Log($"{mapScene} 地图场景已激活!");
                 // Map场景为活跃场景后，搜索一下场景中的TilemapGrid并赋值
-                GameObject tilemapGrid = GameObject.Find("TilemapGrid");
-                if (tilemapGrid != null)
+
+                // 获取当前激活场景
+                Scene currentScene = SceneManager.GetActiveScene();
+                // 打印场景的名字
+                Debug.Log("Current active scene name: " + currentScene.name);
+
+                GameObject[] rootObj = currentScene.GetRootGameObjects();
+
+                foreach (GameObject go in rootObj)
                 {
-                    GameBuilder.TilemapGrid = tilemapGrid.GetComponent<TilemapGrid>();
-                    GameInfo.MovePawnToCurrentMap();
+                    if (go != null && go.name == "TilemapGrid")
+                    {
+                        GameBuilder.TilemapGrid = go.GetComponent<TilemapGrid>();
+                        GameInfo.MovePawnToCurrentMap();
+                        continue;
+                    }
                 }
             }
             else
             {
-                Debug.LogError("SceneLoader.BuildScene MapScene NotLoaded : " + m_CurrentMapScene);
+                Debug.LogError("SceneLoader.BuildScene MapScene NotLoaded : " + mapScene);
+                yield break;
             }
+
+            // 新map场景加载后卸载旧的场景
+            if (m_CurrentMapScene != string.Empty)
+            {
+                AsyncOperation unLoadSceen = SceneManager.UnloadSceneAsync(m_CurrentMapScene);
+                while (!unLoadSceen.isDone)
+                {
+                    yield return null;
+                }
+            }
+
+            // 加载完成
+            m_CurrentMapScene = mapScene;
         }
 
         // 移动Obj到目标场景的对应位置
-        public void MoveGameObjectToScene(GameObject Obj)
+        public void MoveGameObjectToScene(GameObject Obj, string assteId)
         {
-            Scene currentMapScene = SceneManager.GetSceneByName(m_CurrentMapScene);
-            SceneManager.MoveGameObjectToScene(Obj, currentMapScene);
-            
-            // 检测Obj的应该在那个层级位置
+            if (Obj == null) 
+                return;
 
+            // 检测Obj的应该在那个层级位置
+            GameBuilder.SetObjParent(Obj, assteId);
         }
     }
 }

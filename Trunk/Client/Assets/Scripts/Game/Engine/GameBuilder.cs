@@ -5,6 +5,7 @@ using UnityEngine;
 using WNGameBase;
 using UnityEngine.SceneManagement;
 using static UnityEditor.Progress;
+using UnityEditor.VersionControl;
 
 namespace WNEngine
 {
@@ -40,7 +41,7 @@ namespace WNEngine
         /// <summary>
         /// Scene
         /// </summary>
-        private string m_MapSceneName = "Outdoors";
+        private string m_MapSceneName = "Scene_Farm";
         public string MapSceneName
         {
             set { m_MapSceneName = value; }
@@ -506,10 +507,26 @@ namespace WNEngine
         }
         #endregion
 
-        public void SetObjParent(GameObject Obj)
+        public void SetObjParent(GameObject Obj, string assetId)
         {
             // 这里设置Obj的父对象
-            /*这里的想法是将所有的info都加上*/
+            /*这里的想法是将所有的info都加上ID和Type，然后通过搜索Type来实现，如果没有Type的话就跳出*/
+            FileData fileData = null;
+            // 目前只移动Pawn，所以只判断m_PawnInfo即可，后面如果有需要再加
+            fileData = m_PawnInfo[assetId];
+            if (fileData != null)
+            {
+                int level = 0;
+                if (int.TryParse(fileData.type, out level))
+                {
+                    Obj.transform.parent = GetTilemapGridLevel(level);
+                    Debug.Log("查询层级level ： " + level);
+                }
+                else
+                {
+                    Debug.LogError($"Contains with assetId.type '{fileData.type}' doesn't exist.");
+                }
+            }
         }
     }
 }

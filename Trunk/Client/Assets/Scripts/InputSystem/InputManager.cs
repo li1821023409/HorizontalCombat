@@ -108,6 +108,8 @@ namespace WNGameBase
                 m_PressNumberKeys = 0;
             }
 
+
+
             if (NumberKeysEvent != null)
             {
                 NumberKeysEvent(m_PressNumberKeys);
