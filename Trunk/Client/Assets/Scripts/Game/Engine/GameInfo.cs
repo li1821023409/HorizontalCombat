@@ -12,12 +12,12 @@ namespace WNGameBase
     /// </summary>
     public class GameInfo : Singleton<GameInfo>
     {
-        private GameUIScenes GameUIScenes;
-        private CameraManager CameraManager;
+        public GameUIScenes GameUIScenes;
+        public CameraManager CameraManager;
         public GameBuilder GameBuilder;
-        private ItemManager ItemManager;
+        public ItemManager ItemManager;
         protected TilemapInfo TilemapInfo;
-        private InputManager InputManager;
+        public InputManager InputManager;
 
         /// <summary>
         /// NonePawns列表

@@ -122,17 +122,9 @@ namespace WNGameBase
                 // 打印场景的名字
                 Debug.Log("Current active scene name: " + currentScene.name);
 
-                GameObject[] rootObj = currentScene.GetRootGameObjects();
-
-                foreach (GameObject go in rootObj)
-                {
-                    if (go != null && go.name == "TilemapGrid")
-                    {
-                        GameBuilder.TilemapGrid = go.GetComponent<TilemapGrid>();
-                        GameInfo.MovePawnToCurrentMap();
-                        continue;
-                    }
-                }
+                SwitchSceneLoadData(currentScene);
+                // 可能数据较大，建议等待一段时间
+                yield return new WaitForSeconds(1f);
             }
             else
             {
@@ -152,6 +144,31 @@ namespace WNGameBase
 
             // 加载完成
             m_CurrentMapScene = mapScene;
+        }
+
+        /// <summary>
+        /// 用于切换场景时加载新场景相关数据
+        /// </summary>
+        public void SwitchSceneLoadData(Scene currentScene)
+        {
+            GameObject[] rootObj = currentScene.GetRootGameObjects();
+
+            foreach (GameObject go in rootObj)
+            {
+                if (go.tag == StaticTag.TilemapGrid)
+                {
+                    GameBuilder.TilemapGrid = go.GetComponent<TilemapGrid>();
+                    GameInfo.MovePawnToCurrentMap();
+                    continue;
+                }
+                else if (go.tag == StaticTag.PlayerCamera)
+                {
+                    GameInfo.CameraManager.PlayerCamera = go.GetComponent<Camera>();
+                }
+            }
+
+            // 玩家移到新场景且获取场景虚拟相机后，设置一下虚拟相机跟随
+            GameInfo.CameraManager.VirtualCameraFollow();
         }
 
         // 移动Obj到目标场景的对应位置
