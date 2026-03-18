@@ -34,7 +34,7 @@ namespace WNGameBase
         public GameInfo BuilderGameInfo()
         {
             // TODO：切换场景时重新加载UI层级感觉不是很有必要，UI层级可以考虑常驻，可以用多场景叠加的方式实现地图切换
-            // 后续觉得，这里用一个PersistentScene（持久场景）作为游戏逻辑的主要场景，Map场景作为加载场景，地图的切换由异步加载Map场景来实现
+            // 后续修改：这里用一个PersistentScene（持久场景）作为游戏逻辑的主要场景，Map场景作为加载场景，地图的切换由异步加载Map场景来实现
             //if (GameInfo != null)
             //{
             //    Reset();
@@ -108,7 +108,7 @@ namespace WNGameBase
                 yield return null;
             }
             yield return null;
-
+            
             // 这里做一些加载完成后的操作处理
             Scene currentMapScene = SceneManager.GetSceneByName(mapScene);
             if (currentMapScene != null && currentMapScene.isLoaded)
@@ -180,5 +180,7 @@ namespace WNGameBase
             // 检测Obj的应该在那个层级位置
             GameBuilder.SetObjParent(Obj, assteId);
         }
+        // msj + 生成战斗？
+        // 核心玩法：挖矿、种田、科技、战斗、mjs培养?
     }
 }

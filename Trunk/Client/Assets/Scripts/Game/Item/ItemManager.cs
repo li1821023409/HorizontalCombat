@@ -7,16 +7,6 @@ using static UnityEditor.Timeline.Actions.MenuPriority;
 
 namespace WNGameBase
 {
-    public enum ItemType
-    {
-        None = 0,
-        Weapon = 1,
-        FarmTools = 2,      // 农具
-        Seed = 3,           // 种子
-        Food = 4,           // 食物
-        Special = 5,        // 特殊类型道具
-    }
-
     /// <summary>
     /// 武器攻击相关的都在这里管理
     /// </summary>

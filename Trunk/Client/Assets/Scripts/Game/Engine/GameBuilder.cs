@@ -9,19 +9,6 @@ using UnityEditor.VersionControl;
 
 namespace WNEngine
 {
-    public enum AssetTypeEnum
-    {
-        None,
-        Instances,
-        BoolCanPlaceFumiture,
-        BoolCanFropItemPool,
-        BoolDiggable,
-        BoolPath,
-        BoolNpcObstacie,
-        EffectInfo = 20, // 特效比较特殊，特殊处理一下
-        Dialogue = 50,  // 从这里开始，后面的资产类型都不需要实例化
-    }
-
     public class GameBuilder : UnitySingleton<GameBuilder>
     {
         #region 基础数据
