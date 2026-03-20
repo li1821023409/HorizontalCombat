@@ -78,5 +78,25 @@ namespace WNGameBase
             Transform itemParent = transform.Find("ItemParent");
             return itemParent;
         }
+
+        #region 触发器相关逻辑
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            Item item = collision.gameObject.GetComponent<Item>();
+            if (item != null) 
+            {
+                Debug.Log("[aondouli] LocalPlayerPawn.OnTriggerEnter2D Item.id : " + item.itemDetails.id + " Item.Name : " + item.itemDetails.itemName);
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            Item item = collision.gameObject.GetComponent<Item>();
+            if (item != null)
+            {
+                Debug.Log("[aondouli] LocalPlayerPawn.OnTriggerExit2D Item.id : " + item.itemDetails.id + " Item.Name : " + item.itemDetails.itemName);
+            }
+        }
+        #endregion
     }
 }

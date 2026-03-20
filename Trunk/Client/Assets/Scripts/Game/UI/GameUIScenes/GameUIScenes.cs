@@ -10,32 +10,35 @@ namespace WNGameBase
     /// </summary>
     public class GameUIScenes : UnitySingleton<GameUIScenes>
     {
-        public UIEventManager uiEventManager;
-        public InitialPanel initialPanel;
-        public DialogueRootPanel dialogueRootPanel;
+        public UIEventManager m_UIEventManager;
+        public InitialPanel m_InitialPanel;
+        public DialogueRootPanel DialogueRootPanel;
+        public PlayerCommandPanel PlayerCommandPanel;
 
         /// <summary>
         /// 初始化部分数据
         /// </summary>
         public void Init()
         {
+            CreateUIPanel();
             AddListener();
         }
 
+        public void OnDestroy()
+        {
+            RemoveListener();
+        }
 
         /// <summary>
         /// 添加监听事件
         /// </summary>
         protected virtual void AddListener()
         {
-            if (uiEventManager == null)
+            if (m_UIEventManager == null)
             {
-                uiEventManager = UIEventManager.Instance;
+                m_UIEventManager = UIEventManager.Instance;
             }
-
-            //uiEventManager.AddListener(UIEvent.NotifyInitialPanel, NotifyInitialPanel);
-
-            uiEventManager.AddUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
+            //uiEventManager.AddUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
         }
 
 
@@ -45,30 +48,27 @@ namespace WNGameBase
         /// </summary>
         protected virtual void RemoveListener()
         {
-            uiEventManager.RemoveUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
+            //uiEventManager.RemoveUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
         }
 
         /// <summary>
-        /// 显示初始化界面
+        /// 需要初始化显示的panl放这里
         /// </summary>
-        /// <param name="param"></param>
-        public void NotifyInitialPanel(Param param)
+        public void CreateUIPanel()
         {
-            if (initialPanel == null)
-            {
-                initialPanel = UIManager.Instance.ShowPanel<InitialPanel>();
-            }
-        }
+            //if (m_InitialPanel == null)
+            //{
+            //    m_InitialPanel = UIManager.Instance.ShowPanel<InitialPanel>();
+            //}
 
-        /// <summary>
-        /// 显示对话界面
-        /// </summary>
-        /// <param name="param"></param>
-        public void NotifyDialogueRootPanel(Param param)
-        {
-            if (dialogueRootPanel == null)
+            //if (DialogueRootPanel == null)
+            //{
+            //    DialogueRootPanel = UIManager.Instance.ShowPanel<DialogueRootPanel>();
+            //}
+
+            if (PlayerCommandPanel == null)
             {
-                dialogueRootPanel = UIManager.Instance.ShowPanel<DialogueRootPanel>();
+                PlayerCommandPanel = UIManager.Instance.ShowPanel<PlayerCommandPanel>();
             }
         }
     }

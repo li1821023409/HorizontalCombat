@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a4013b5373094a4b9f28b95e7474766, type: 3}
-  m_Name: New ItemList
+  m_Name: New SO_Item List
   m_EditorClassIdentifier: 
   itemDetails: []

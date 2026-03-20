@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using WNGameBase;
 
 namespace WNEngine
 {
@@ -31,17 +32,11 @@ namespace WNEngine
             }
         }
 
-
-        private ItemInfoData m_CurrentItemInfo = null;
         public ItemInfoData CurrentItemInfo
         {
-            set
-            {
-                m_CurrentItemInfo = value;
-            }
             get 
             { 
-                return m_CurrentItemInfo; 
+                return InventoryManager.Instance.CurrentItem; 
             }
         }
 

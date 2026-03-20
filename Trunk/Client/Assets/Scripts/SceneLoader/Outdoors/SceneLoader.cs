@@ -4,7 +4,6 @@ using UIFrame;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using WNEngine;
-using WNGameBase;
 
 namespace WNGameBase
 {
@@ -13,6 +12,7 @@ namespace WNGameBase
     /// </summary>
     public class SceneLoader : UnitySingleton<SceneLoader>
     {
+        private WNGame WNGame;
         private GameInfo GameInfo;
         private GameBuilder GameBuilder;
         private string m_CurrentMapScene = string.Empty;
@@ -31,7 +31,7 @@ namespace WNGameBase
         /// <summary>
         /// 游戏基本信息构建
         /// </summary>
-        public GameInfo BuilderGameInfo()
+        public WNGame BuilderWNGame()
         {
             // TODO：切换场景时重新加载UI层级感觉不是很有必要，UI层级可以考虑常驻，可以用多场景叠加的方式实现地图切换
             // 后续修改：这里用一个PersistentScene（持久场景）作为游戏逻辑的主要场景，Map场景作为加载场景，地图的切换由异步加载Map场景来实现
@@ -39,8 +39,8 @@ namespace WNGameBase
             //{
             //    Reset();
             //}
-            GameInfo = GameInfo.Instance;
-            return GameInfo;
+            WNGame = WNGame.Instance;
+            return WNGame;
         }
 
         /// <summary>
@@ -155,20 +155,20 @@ namespace WNGameBase
 
             foreach (GameObject go in rootObj)
             {
-                if (go.tag == StaticTag.TilemapGrid)
+                if (go.tag == StaticTag.TILEMAP_GRID)
                 {
                     GameBuilder.TilemapGrid = go.GetComponent<TilemapGrid>();
-                    GameInfo.MovePawnToCurrentMap();
+                    WNGame.MovePawnToCurrentMap();
                     continue;
                 }
-                else if (go.tag == StaticTag.PlayerCamera)
+                else if (go.tag == StaticTag.PLAYER_CAMERA)
                 {
-                    GameInfo.CameraManager.PlayerCamera = go.GetComponent<Camera>();
+                    WNGame.CameraManager.PlayerCamera = go.GetComponent<Camera>();
                 }
             }
 
             // 玩家移到新场景且获取场景虚拟相机后，设置一下虚拟相机跟随
-            GameInfo.CameraManager.VirtualCameraFollow();
+            WNGame.CameraManager.VirtualCameraFollow();
         }
 
         // 移动Obj到目标场景的对应位置

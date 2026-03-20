@@ -46,7 +46,17 @@ namespace WNEngine
         public virtual void BuildGameScene()
         {
             //return ReflectUtility.CreateInstance(UISceneType) as UIScene;
-            BuildGameInfo(SceneLoader.BuilderGameInfo());
+            BuildWNGame(SceneLoader.BuilderWNGame());
+        }
+
+        /// <summary>
+        /// 创建WNGame，后续完善
+        /// </summary>
+        public virtual void BuildWNGame(WNGame wnGame) { DoBuildWNGame(wnGame); }
+
+        protected virtual void DoBuildWNGame(WNGame wnGame)
+        {
+            wnGame.Init();
         }
 
         /// <summary>
