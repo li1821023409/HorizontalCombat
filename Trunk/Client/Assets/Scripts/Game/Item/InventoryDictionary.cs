@@ -5,7 +5,53 @@ using UnityEngine;
 [CreateAssetMenu]
 public class InventoryDictionary : ScriptableObject
 {
-    public Dictionary<ItemInfoData, int> inventoryDictionary = new Dictionary<ItemInfoData, int>();
-    // 这里只用于显示物品种类
-    public List<ItemDetails> inventoryList = new List<ItemDetails>();
+    [System.Serializable]
+    public struct InventoryEntry
+    {
+        public ItemDetails item;
+        public int count;
+    }
+
+    [SerializeField]
+    private List<InventoryEntry> inventoryEntries = new List<InventoryEntry>();
+
+    // 运行时用的字典，不序列化
+    private Dictionary<ItemDetails, int> inventoryDictionary = new Dictionary<ItemDetails, int>();
+
+    public IReadOnlyDictionary<ItemDetails, int> Inventory => inventoryDictionary;
+
+    private void OnEnable()
+    {
+        inventoryDictionary.Clear();
+        foreach (var entry in inventoryEntries)
+        {
+            if (entry.item != null)
+                inventoryDictionary[entry.item] = entry.count;
+        }
+    }
+
+    // 添加或更新物品
+    public void SetItem(ItemDetails item, int count)
+    {
+        if (item == null) return;
+        inventoryDictionary[item] = count;
+        SyncToList();
+    }
+
+    // 获取物品数量
+    public int GetItemCount(ItemDetails item)
+    {
+        if (item == null) return 0;
+        return inventoryDictionary.TryGetValue(item, out int count) ? count : 0;
+    }
+
+    // 同步字典到序列化列表
+    private void SyncToList()
+    {
+        inventoryEntries.Clear();
+        foreach (var kvp in inventoryDictionary)
+        {
+            inventoryEntries.Add(new InventoryEntry { item = kvp.Key, count = kvp.Value });
+        }
+    }
 }

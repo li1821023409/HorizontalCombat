@@ -494,6 +494,25 @@ namespace WNEngine
             return item;
         }
 
+        /// <summary>
+        /// 通过assetId查找对应的ItemDetails
+        /// </summary>
+        /// <param name="assetId"></param>
+        /// <returns></returns>
+        public ItemDetails ContainsItemDetails(string assetId)
+        {
+            ItemInfoData item = ContainsItemInfo(assetId);
+
+            if (item != null)
+            {
+                ItemDetails itemDetails = new(item);
+                return itemDetails;
+            }
+
+            Debug.LogError($"ItemDetails with assetId '{assetId}' doesn't exist.");
+            return null;
+        }
+
         public void DestroyItem(string itemId, GameObject item)
         {
             if (!string.IsNullOrEmpty(itemId) && item != null)

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0baa16d40099b4e4184321c11a51b700, type: 3}
   m_Name: LocalPawnInventory
   m_EditorClassIdentifier: 
-  inventoryList: []
+  inventoryEntries: []

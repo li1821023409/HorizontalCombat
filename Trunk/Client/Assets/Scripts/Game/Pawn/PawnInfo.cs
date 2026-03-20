@@ -32,7 +32,7 @@ namespace WNEngine
             }
         }
 
-        public ItemInfoData CurrentItemInfo
+        public ItemDetails CurrentItemInfo
         {
             get 
             { 
