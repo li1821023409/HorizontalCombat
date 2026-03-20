@@ -15,7 +15,7 @@ public class InventoryDictionary : ScriptableObject
     [SerializeField]
     private List<InventoryEntry> inventoryEntries = new List<InventoryEntry>();
 
-    // ÔËĞĞÊ±ÓÃµÄ×Öµä£¬²»ĞòÁĞ»¯
+    // ç”¨äºè¿è¡Œæ—¶çš„å­—å…¸ï¼Œä¾¿äºæŸ¥æ‰¾
     private Dictionary<ItemDetails, int> inventoryDictionary = new Dictionary<ItemDetails, int>();
 
     public IReadOnlyDictionary<ItemDetails, int> Inventory => inventoryDictionary;
@@ -30,7 +30,7 @@ public class InventoryDictionary : ScriptableObject
         }
     }
 
-    // Ìí¼Ó»ò¸üĞÂÎïÆ·
+    // è®¾ç½®æˆ–æ›´æ–°ç‰©å“
     public void SetItem(ItemDetails item, int count)
     {
         if (item == null) return;
@@ -38,14 +38,14 @@ public class InventoryDictionary : ScriptableObject
         SyncToList();
     }
 
-    // »ñÈ¡ÎïÆ·ÊıÁ¿
+    // è·å–ç‰©å“æ•°é‡
     public int GetItemCount(ItemDetails item)
     {
         if (item == null) return 0;
         return inventoryDictionary.TryGetValue(item, out int count) ? count : 0;
     }
 
-    // Í¬²½×Öµäµ½ĞòÁĞ»¯ÁĞ±í
+    // åŒæ­¥å­—å…¸åˆ°åºåˆ—åŒ–åˆ—è¡¨
     private void SyncToList()
     {
         inventoryEntries.Clear();
