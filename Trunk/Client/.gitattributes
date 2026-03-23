@@ -1,0 +1,142 @@
+# 文本文件使用UTF-8编码，LF换行符
+*.cs text eol=lf charset=utf-8
+*.js text eol=lf charset=utf-8
+*.ts text eol=lf charset=utf-8
+*.html text eol=lf charset=utf-8
+*.css text eol=lf charset=utf-8
+*.xml text eol=lf charset=utf-8
+*.json text eol=lf charset=utf-8
+*.txt text eol=lf charset=utf-8
+*.md text eol=lf charset=utf-8
+*.yml text eol=lf charset=utf-8
+*.yaml text eol=lf charset=utf-8
+*.config text eol=lf charset=utf-8
+*.csproj text eol=lf charset=utf-8
+*.sln text eol=lf charset=utf-8
+*.targets text eol=lf charset=utf-8
+*.props text eol=lf charset=utf-8
+
+# Unity相关文件
+*.meta text eol=lf charset=utf-8
+*.asset text eol=lf charset=utf-8
+*.unity text eol=lf charset=utf-8
+*.prefab text eol=lf charset=utf-8
+*.mat text eol=lf charset=utf-8
+*.shader text eol=lf charset=utf-8
+*.cginc text eol=lf charset=utf-8
+*.hlsl text eol=lf charset=utf-8
+*.glslinc text eol=lf charset=utf-8
+
+# 二进制文件
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.bmp binary
+*.tga binary
+*.tif binary
+*.tiff binary
+*.psd binary
+*.ai binary
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+*.zip binary
+*.rar binary
+*.7z binary
+*.tar binary
+*.gz binary
+*.dll binary
+*.exe binary
+*.so binary
+*.dylib binary
+*.a binary
+*.lib binary
+*.obj binary
+*.pdb binary
+*.ilk binary
+*.exp binary
+*.cache binary
+*.apk binary
+*.ipa binary
+
+# Unity特定二进制文件
+*.fbx binary
+*.blend binary
+*.ma binary
+*.mb binary
+*.max binary
+*.obj binary
+*.3ds binary
+*.dae binary
+*.dxf binary
+*.skp binary
+*.lwo binary
+*.lws binary
+*.lxo binary
+*.c4d binary
+*.jas binary
+*.flt binary
+*.x binary
+*.wrl binary
+*.wrz binary
+*.iv binary
+*.vrml binary
+*.vrm binary
+*.stl binary
+*.ply binary
+*.off binary
+*.raw binary
+*.ac binary
+*.acc binary
+*.dxf binary
+*.3dm binary
+*.rib binary
+*.iges binary
+*.iges binary
+*.sat binary
+*.step binary
+*.stp binary
+*.iges binary
+*.iges binary
+*.x_t binary
+*.x_b binary
+*.xmt_txt binary
+*.xmt_bin binary
+*.xmt binary
+*.prc binary
+*.jt binary
+*.amf binary
+*.3mf binary
+*.bpm binary
+*.collada binary
+*.dae binary
+*.ifc binary
+*.ifczip binary
+*.kmz binary
+*.ldr binary
+*.lwo binary
+*.lws binary
+*.lxo binary
+*.mpd binary
+*.nff binary
+*.obj binary
+*.off binary
+*.ply binary
+*.stl binary
+*.u3d binary
+*.vrml binary
+*.wrl binary
+*.xgl binary
+*.zgl binary
+
+# 自动检测文本文件
+text=auto
+
+# 强制LF换行符
+* text=auto eol=lf
