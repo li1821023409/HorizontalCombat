@@ -31,9 +31,16 @@ namespace FileIO
             {
                 using (StreamReader st = new StreamReader(fileName))
                 {
+                    int lineCount = 0;
                     while (!st.EndOfStream)
                     {
                         string data = st.ReadLine();
+                        lineCount++;
+                        
+                        // 跳过前两行（中英文列名）
+                        if (lineCount <= 2)
+                            continue;
+                        
                         var values = data.Split(',');
                         if (!string.IsNullOrEmpty(data))
                         {
@@ -98,9 +105,16 @@ namespace FileIO
             {
                 using (StreamReader st = new StreamReader(fileName))
                 {
+                    int lineCount = 0;
                     while (!st.EndOfStream)
                     {
                         string data = st.ReadLine();
+                        lineCount++;
+                        
+                        // 跳过前两行（中英文列名）
+                        if (lineCount <= 2)
+                            continue;
+                        
                         var values = data.Split(',');
                         if (!string.IsNullOrEmpty(data))
                         {
