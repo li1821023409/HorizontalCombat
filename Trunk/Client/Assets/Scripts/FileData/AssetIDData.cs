@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class AssetIDData : FileData
 {
     public string name;

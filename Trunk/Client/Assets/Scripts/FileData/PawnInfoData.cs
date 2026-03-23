@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class PawnInfoData : FileData
 {
     public string name;
@@ -6,7 +8,6 @@ public class PawnInfoData : FileData
     public string moveSpeed;
     public string jumpForce;
     public string skillID;
-
 
     public override void Init(string[] datas)
     {

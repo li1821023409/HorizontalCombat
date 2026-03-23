@@ -4,6 +4,13 @@ public static class StaticTag
     public const string TILEMAP_GRID = "TilemapGrid";
 }
 
+public static class CsvFilePath
+{
+    public const string XML_PATH = "Assets/Resources/Config/Xml";
+    public const string CSV_PATH = "Assets/Resources/Config/Csv";
+    public const string FILE_DATA_PATH = "Assets/Scripts/FileData";
+}
+
 public static class StaticInventoryData
 {
     // ¿â´æÂ·¾¶

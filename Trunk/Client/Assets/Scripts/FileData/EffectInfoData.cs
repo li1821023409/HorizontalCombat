@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class EffectInfoData : FileData
 {
     public string name;

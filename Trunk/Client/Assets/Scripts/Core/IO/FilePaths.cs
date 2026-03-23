@@ -7,7 +7,7 @@ namespace FileIO
     /// </summary>
     public class FilePaths
     {
-        public static readonly string root = $"{Application.dataPath}/Common/GameData/";
+        public static readonly string root = $"{Application.dataPath}/Resources/Config/Csv/";
     }
 
     /// <summary>
