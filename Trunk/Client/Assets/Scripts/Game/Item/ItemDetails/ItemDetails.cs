@@ -1,41 +1,59 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-// ÎïÆ·ÏêÏ¸Êı¾İ£¬ÒªÇó¿ÉĞòÁĞ»¯
+// å•†å“è¯¦ç»†æ•°æ®ï¼Œéœ€è¦åºåˆ—åŒ–
 [System.Serializable]
 public class ItemDetails
 {
     public ItemInfoData m_InfoData;
 
-    /*ÏÂÃæÊı¾İÒª·ÅÔÚÁĞ±íÖĞ*/
-    public string id;
+    /*ä»¥ä¸‹å­—æ®µéœ€è¦è¡¥å……å®Œæ•´*/
+    public string id = "";
     public ItemType itemType = ItemType.None;
-    public string itemName;
-    public SpriteRenderer itemSprite;
-    public string itemDetailedDescription;
-    public string itemPath;
-    // ÊÇ³õÊ¼ÎïÆ·Âğ
+    public string itemName = "";
+    public Sprite itemSprite = null;
+    public string itemDetailedDescription = "";
+    public string itemPath = "";
+    // æ˜¯å¦åˆå§‹ç‰©å“
     public bool isStartingItem = false;
-    // ¿ÉÒÔÊ°È¡Âğ
+    // æ˜¯å¦å¯æ‹¾å–
     public bool canBePickedUp = false;
-    // ¿ÉÒÔ¶ªÆúÂğ
+    // æ˜¯å¦å¯ä¸¢å¼ƒ
     public bool canBeDropped = false;
-    // ¿ÉÒÔÊ³ÓÃÂğ
+    // æ˜¯å¦å¯é£Ÿç”¨
     public bool canBeEaten = false;
-    // ¿ÉÒÔĞ¯´øÂğ
+    // æ˜¯å¦å¯æºå¸¦
     public bool canBeCarried = false;
-    // ¿ÉÒÔÍÏ×§Âğ£¨pawn¾­¹ıÊ±»á»Î¶¯£©
+    // æ˜¯å¦å¯æ‹–æ‹½ï¼ˆpawnçŠ¶æ€æ—¶æ‹–æ‹½ï¼‰
     public bool canBeDrag = false;
-    // ¿ÉÒÔ¸ñ×ÓÖØµşÂğ£¨ÊıÁ¿´óÓÚ1·ÅÔÚÒ»¸ö¸ñ×ÓÀï£©
+    // æ˜¯å¦å¯å åŠ ï¼ˆå åŠ æ•°é‡å¤§äº1æ—¶ä¸ºå¯å åŠ ï¼‰
     public bool canBeOverlap = false;
-    //// itemÊıÁ¿
+    //// itemæ•°é‡
     //public int itemCount = 1;
 
     public ItemDetails(ItemInfoData infoData)
     {
         id = infoData.id;
-        itemType = (ItemType)int.Parse(infoData.type);
         itemName = infoData.itemName;
         itemDetailedDescription = infoData.itemDetailedDescription;
         itemPath = infoData.itemPath;
+    }
+
+    public void SetInfoData(ItemInfoData infoData)
+    {
+        m_InfoData = infoData;
+        id = infoData.id;
+        itemName = infoData.itemName;
+        itemDetailedDescription = infoData.itemDetailedDescription;
+        itemPath = infoData.itemPath;
+    }
+
+    public void SetInfoData(ItemDetails itemInfoData)
+    {
+        m_InfoData = itemInfoData.m_InfoData;
+        id = itemInfoData.m_InfoData.id;
+        itemName = itemInfoData.m_InfoData.itemName;
+        itemDetailedDescription = itemInfoData.m_InfoData.itemDetailedDescription;
+        itemPath = itemInfoData.m_InfoData.itemPath;
     }
 }

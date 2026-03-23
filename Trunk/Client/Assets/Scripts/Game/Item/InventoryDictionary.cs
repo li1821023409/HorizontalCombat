@@ -31,10 +31,21 @@ public class InventoryDictionary : ScriptableObject
     }
 
     // 设置或更新物品
-    public void SetItem(ItemDetails item, int count)
+    public void SetItem(ItemDetails item, int reviseCount)
     {
         if (item == null) return;
-        inventoryDictionary[item] = count;
+        if (!inventoryDictionary.ContainsKey(item) && reviseCount > 0)
+        {
+            inventoryDictionary.Add(item, reviseCount);
+        }
+        else if (inventoryDictionary[item] + reviseCount > 0)
+        {
+            inventoryDictionary[item] += reviseCount;
+        }
+        else
+        {
+            inventoryDictionary.Remove(item);
+        }
         SyncToList();
     }
 

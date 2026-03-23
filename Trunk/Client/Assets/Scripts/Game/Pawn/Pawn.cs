@@ -35,6 +35,14 @@ namespace WNGameBase
     /// </summary>
     public class Pawn : AttackableTarget
     {
+        public WNGame WNGame
+        {
+            get
+            {
+                return WNGame.Instance;
+            }
+        }
+
         public PawnInfo m_PawnInfo;
 
         #region Pawn移动参数

@@ -24,6 +24,7 @@ namespace WNGameBase
         public Vector2 MoveVector2
         {
             get { return m_MoveVector2; }
+            set { m_MoveVector2 = value; }
         }
         #endregion
 
@@ -51,6 +52,7 @@ namespace WNGameBase
         public override void Tick()
         {
             base.Tick();
+            Move();
         }
 
         protected virtual void AddInputEvent()
@@ -63,10 +65,15 @@ namespace WNGameBase
             InputManager.Instance.MovementEvent += SetMoveParameters;
         }
 
+        public virtual void Move()
+        {
+            m_Rigidbody2D.velocity = MoveVector2;
+        }
+
         // 设置移动参数
         protected virtual void SetMoveParameters(Vector2 inputVector)
         {
-            m_Rigidbody2D.velocity = MoveSpeed * inputVector;
+            MoveVector2 = MoveSpeed * inputVector;
         }
 
         /// <summary>
@@ -86,6 +93,8 @@ namespace WNGameBase
             if (item != null) 
             {
                 Debug.Log("[aondouli] LocalPlayerPawn.OnTriggerEnter2D Item.id : " + item.itemDetails.id + " Item.Name : " + item.itemDetails.itemName);
+                // 拾取物品
+                WNGame.ItemPickedUp(item, collision.gameObject);
             }
         }
 

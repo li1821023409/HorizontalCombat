@@ -8,7 +8,7 @@ using WNEngine;
 namespace WNGameBase
 {
     /// <summary>
-    /// ÓÃÀ´¿ØÖÆÓÎÏ·ÔËĞĞµÄ»ù±¾Âß¼­
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ĞµÄ»ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
     /// </summary>
     public class WNGame : UnitySingleton<WNGame>
     {
@@ -39,15 +39,18 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// ×Ô¼ºÉèÖÃ¸üĞÂÆµÂÊ
+        /// ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½ï¿½Æµï¿½ï¿½
         /// </summary>
         protected virtual void Tick()
         {
-            //GameInfo.m_LocalPlayerPawn.Tick();
+            if (GameInfo.m_LocalPlayerPawn != null)
+            {
+                GameInfo.m_LocalPlayerPawn.Tick();
+            }
         }
 
         /// <summary>
-        /// ÓÎÏ·»ù±¾UI¹¹½¨
+        /// ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public void BuilderGameUIScenes()
         {
@@ -60,7 +63,7 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// ÓÎÏ·»ù±¾¹¹½¨
+        /// ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public void BuilderGameBuilder()
         {
@@ -68,7 +71,7 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// Ïà»ú¿ØÖÆ
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public void BuilderCameraManager()
         {
@@ -108,31 +111,31 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// ÕâÀïÊÇ³õÊ¼»¯¼ÓÔØ×ÊÔ´
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½Ç³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´
         /// </summary>
         protected virtual void LoadResource()
         {
-            // ÏÈ¶ÁÈ¡AssetID×ÊÔ´ÎÄ¼ş
+            // ï¿½È¶ï¿½È¡AssetIDï¿½ï¿½Ô´ï¿½Ä¼ï¿½
             GameBuilder.LoadAssetIDData();
         }
 
         public void MovePawnToCurrentMap()
         {
-            /*ÒªÈ·±£ÔÙmapµØÍ¼¼ÓÔØÍê³É²¢¶ÁÈ¡µ½TilemapGrid²Å¿ÉÒÔ*/
+            /*ÒªÈ·ï¿½ï¿½ï¿½ï¿½mapï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½È¡ï¿½ï¿½TilemapGridï¿½Å¿ï¿½ï¿½ï¿½*/
             if (GameInfo.m_LocalPlayerPawn == null)
             {
-                // Èç¹ûPawnÉĞÎ´´´½¨ÔòĞèÒªÖØĞÂ´´½¨Ò»¸ö
+                // ï¿½ï¿½ï¿½Pawnï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Â´ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
                 LoadPawn();
             }
             GameBuilder.SceneLoader.MoveGameObjectToScene(GameInfo.m_LocalPlayerPawn.gameObject, GameInfo.m_LocalPlayerPawnInfo.id);
         }
 
         /// <summary>
-        /// ´´½¨½ÇÉ«
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
         /// </summary>
         public virtual void LoadPawn()
         {
-            // ´´½¨Ä¬ÈÏ½ÇÉ«
+            // ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½Ï½ï¿½É«
             Pawn pawn = GameBuilder.SpawnPawn(GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity);
             if (pawn != null)
             {
@@ -140,9 +143,11 @@ namespace WNGameBase
                 GameInfo.m_LocalPlayerPawn = pawn;
             }
 
-            // TODO : ¿ª¾ÖÄ¬ÈÏµÄItemÊÇId = 1001ÊÖ£¬ÕâÀï½ö×÷²âÊÔÓÃ£¬ºóĞøÒÆ³ı£¬²»´æÔÚÊÖÕâ¸öItem
-            InventoryManager.AddItem(GameBuilder.DefaultItemID);
-            InventoryManager.SwitchItem(GameBuilder.DefaultItemID);
+            // TODO : ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½Ïµï¿½Itemï¿½ï¿½Id = 1001ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Item
+            Item item = new Item();
+            item.Init(GameBuilder.ContainsItemDetails(GameBuilder.DefaultItemID));
+            InventoryManager.AddItem(item);
+            InventoryManager.SwitchItem(item);
         }
 
         public virtual void SpawnPawn(string assetID, Vector3 location, Quaternion rotate)
@@ -179,5 +184,14 @@ namespace WNGameBase
         {
 
         }
+
+        #region Itemç›¸å…³é€»è¾‘
+        public void ItemPickedUp(Item item, GameObject itemObj)
+        {
+            // æ‹¾å–ç‰©å“
+            InventoryManager.AddItem(item);
+            GameBuilder.DestroyItem(item.itemDetails.id, itemObj);
+        }
+        #endregion
     }
 }

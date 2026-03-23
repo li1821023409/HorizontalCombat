@@ -10,10 +10,11 @@ namespace WNGameBase
     /// </summary>
     public class GameUIScenes : UnitySingleton<GameUIScenes>
     {
-        public UIEventManager m_UIEventManager;
-        public InitialPanel m_InitialPanel;
+        public UIEventManager UIEventManager;
+        public InitialPanel InitialPanel;
         public DialogueRootPanel DialogueRootPanel;
         public PlayerCommandPanel PlayerCommandPanel;
+        public InventoryBarPanel InventoryBarPanel;
 
         /// <summary>
         /// 初始化部分数据
@@ -34,11 +35,12 @@ namespace WNGameBase
         /// </summary>
         protected virtual void AddListener()
         {
-            if (m_UIEventManager == null)
+            if (UIEventManager == null)
             {
-                m_UIEventManager = UIEventManager.Instance;
+                UIEventManager = UIEventManager.Instance;
             }
             //uiEventManager.AddUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
+            UIEventManager.AddUIEventListener(UIEvent.NotifyUpDateInventoryBar, NotifyUpDateInventoryBar);
         }
 
 
@@ -49,6 +51,7 @@ namespace WNGameBase
         protected virtual void RemoveListener()
         {
             //uiEventManager.RemoveUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
+            UIEventManager.RemoveUIEventListener(UIEvent.NotifyUpDateInventoryBar, NotifyUpDateInventoryBar);
         }
 
         /// <summary>
@@ -70,6 +73,18 @@ namespace WNGameBase
             {
                 PlayerCommandPanel = UIManager.Instance.ShowPanel<PlayerCommandPanel>();
             }
+
+            if (InventoryBarPanel == null)
+            {
+                InventoryBarPanel = UIManager.Instance.ShowPanel<InventoryBarPanel>();
+            }
+        }
+
+        public void NotifyUpDateInventoryBar(Param param)
+        {
+            Item item = param.GetObject<Item>("Item");
+            int count = param.GetInt("Count");
+            InventoryBarPanel.UpDateInventoryBar(item, count);
         }
     }
 }

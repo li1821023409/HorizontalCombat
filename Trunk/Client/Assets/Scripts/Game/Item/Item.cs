@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ËùÓÐitem»ùÀà
+/// ï¿½ï¿½ï¿½ï¿½itemï¿½ï¿½ï¿½ï¿½
 /// </summary>
 namespace WNGameBase
 {
-    // ±ØÐë°üº¬2DÅö×²×é¼þ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2Dï¿½ï¿½×²ï¿½ï¿½ï¿½
     [RequireComponent(typeof(Collider2D))] 
     public class Item : MonoBehaviour
     {
-        // itemÏêÏ¸ÐÅÏ¢
+        // itemï¿½ï¿½Ï¸ï¿½ï¿½Ï¢
         public ItemDetails itemDetails;
 
         private int itemId = 0;
@@ -25,15 +25,24 @@ namespace WNGameBase
 
         public void Init(ItemDetails itemdetails)
         {
-            if (itemdetails == null)
+            if (itemdetails != null)
             {
                 this.itemDetails = itemdetails;
                 int.TryParse(itemdetails.id, out itemId);
             }
         }
 
-        #region ¿ÉÍÏ×§»Î¶¯Ïà¹ØÂß¼­
-        // ÔÝÊ±ÓÃÐ­³ÌÊµÏÖ£¨ºóÃæ¿´ÏÂÊÇ·ñÓÃ¶¯»­£©
+        public void Init(ItemInfoData itemInfoData)
+        {
+            if (itemInfoData != null)
+            {
+                this.itemDetails.SetInfoData(itemInfoData);
+                int.TryParse(itemDetails.id, out itemId);
+            }
+        }
+
+        #region ï¿½ï¿½ï¿½ï¿½×§ï¿½Î¶ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
+        // ï¿½ï¿½Ê±ï¿½ï¿½Ð­ï¿½ï¿½Êµï¿½Ö£ï¿½ï¿½ï¿½ï¿½æ¿´ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½
         Coroutine dragCoroutine;
 
         public void CanBeDrag(Vector3 velocity)
@@ -43,7 +52,7 @@ namespace WNGameBase
                 return;
             }
 
-            // ÔÝÊ±´òËãÊÕµ½ËÙ¶ÈÓ°Ïì£¬ºóÃæÔÙ¿´
+            // ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½ï¿½Ù¶ï¿½Ó°ï¿½ì£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ù¿ï¿½
         }
 
         private IEnumerable DragCoroutine()

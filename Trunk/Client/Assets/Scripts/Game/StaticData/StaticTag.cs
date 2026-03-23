@@ -13,12 +13,14 @@ public static class CsvFilePath
 
 public static class StaticInventoryData
 {
-    // ¿â´æÂ·¾¶
+    // ç‰©å“è·¯å¾„
     public const string INVENTORY_DICTIONARY_PATH = "Assets/Scripts/Game/Item/InventoryDictionary";
-    // ±¾µØÍæ¼Ò¿â´æÃüÃû
+    // æœ¬åœ°ç©å®¶åº“å­˜æ 
     public const string LOCAL_PAWN_INVENTORY = "LocalPawnInventory";
-    // ×î´óÏÔÊ¾ÈİÁ¿
-    public const int INVENTORY_MAX_DISPLAY_CAPACITY = 12;
-    // ×î´óĞ¯´øÈİÁ¿
+    // æœ¬åœ°ç©å®¶åº“å­˜æ 
+    public const string LOCAL_PAWN_INVENTORY_BAR = "LocalPawnInventoryBar";
+    // æœ€å¤§æ˜¾ç¤ºå®¹é‡
+    public const int INVENTORY_MAX_DISPLAY_CAPACITY = 8;
+    // æœ€å¤§æºå¸¦å®¹é‡
     public const int INVENTORY_MAX_CARRYING_CAPACITY = 120;
 }

@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UIFrame;
 using UnityEngine;
 using WNGameBase;
-using UnityEngine.SceneManagement;
-using static UnityEditor.Progress;
-using UnityEditor.VersionControl;
 
 namespace WNEngine
 {
@@ -451,6 +448,19 @@ namespace WNEngine
 
         #region Item对象池化处理
         /// <summary>
+        /// 给GM指令使用的Item生成
+        /// 指定生成对象、位置、父物体
+        /// </summary>
+        public void CreateItem(string assetId, Vector3 position)
+        {
+            Item newItem = SpawnItem(assetId, position, Quaternion.identity, TilemapGrid.InstancesLevel)?.GetComponent<Item>();
+            if (newItem != null)
+            {
+                newItem.Init(ContainsItemInfo(assetId));
+            }
+        }
+
+        /// <summary>
         /// 创建Item对象
         /// </summary>
         public GameObject SpawnItem(string assetId, Vector3 position, Quaternion rotation, Transform parent, int initialSize = 1, int maxSize = 1)
@@ -501,11 +511,17 @@ namespace WNEngine
         /// <returns></returns>
         public ItemDetails ContainsItemDetails(string assetId)
         {
-            ItemInfoData item = ContainsItemInfo(assetId);
+            ItemInfoData itemInfoData = ContainsItemInfo(assetId);
 
-            if (item != null)
+            if (itemInfoData != null)
             {
-                ItemDetails itemDetails = new(item);
+                ItemDetails itemDetails = new(itemInfoData)
+                {
+                    id = itemInfoData.id,
+                    itemName = itemInfoData.itemName,
+                    itemDetailedDescription = itemInfoData.itemDetailedDescription,
+                    itemPath = itemInfoData.itemPath
+                };
                 return itemDetails;
             }
 
