@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UIFrame;
 using WNGameBase;
+using System.Linq;
+
 public class InventoryBarPanel : Panel
 {
     #region 基础方法
@@ -14,7 +16,8 @@ public class InventoryBarPanel : Panel
 
     #region 基础数据
     private InventoryBarView view;
-    private Item[] items = new Item[StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY];
+    //private ItemDetails[] items = new ItemDetails[StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY];
+    private List<ItemDetails> itemDetailsList = new List<ItemDetails>();
     #endregion
 
     #region 生命周期
@@ -47,17 +50,19 @@ public class InventoryBarPanel : Panel
     /// <summary>
     /// 更新物品栏显示
     /// </summary>
-    public void UpDateInventoryBar(Item item, int count)
+    public void UpDateInventoryBar(ItemDetails itemDetails, int count)
     {
-        // 这里自动填充，不是0就直接填充进去
-        for (int i = 0; i < StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY; i++)
+        // TODO：仅测试，拾取后会自动添加到物品栏中
+        int index = itemDetailsList.FindIndex(x => x.id == itemDetails.id);
+
+        if (index == -1 && itemDetailsList.Count <= StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY)
         {
-            if (items[i] == null || items[i].ItemId == 0)
-            {
-                items[i] = item;
-                view.itemSlotList[i].SetItemSlot(item, count);
-                break;
-            }
+            itemDetailsList.Add(itemDetails);
+            view.itemSlotList[itemDetailsList.Count - 1].SetItemSlot(itemDetails, count);
+        }
+        else if (index <= StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY)
+        {
+            view.itemSlotList[index].SetItemSlot(itemDetails, count);
         }
     }
     #endregion

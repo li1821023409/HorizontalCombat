@@ -82,9 +82,9 @@ namespace WNGameBase
 
         public void NotifyUpDateInventoryBar(Param param)
         {
-            Item item = param.GetObject<Item>("Item");
+            ItemDetails itemDetails = param.GetObject<ItemDetails>("ItemDetails");
             int count = param.GetInt("Count");
-            InventoryBarPanel.UpDateInventoryBar(item, count);
+            InventoryBarPanel.UpDateInventoryBar(itemDetails, count);
         }
     }
 }

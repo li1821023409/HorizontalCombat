@@ -26,9 +26,9 @@ public class ItemSlot : MonoBehaviour
         ItemCount.text = null;
     }
 
-    public void SetItemSlot(Item item, int itemCount = 0)
+    public void SetItemSlot(ItemDetails itemDetails, int itemCount = 0)
     {
-        ItemImage.sprite = item.itemDetails != null ? item.itemDetails.itemSprite : null;
+        ItemImage.sprite = itemDetails != null ? itemDetails.itemSprite : null;
 
         if (itemCount > 0)
         {

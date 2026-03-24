@@ -26,8 +26,8 @@ public class InventoryBarView : BaseView
 
         AddItemSlotToList(initialItemSlot);
 
-        int slotsToCreate = StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY - 1;
-        for (int i = 0; i < slotsToCreate; i++)
+        // 因为本来就有一个，后面创建需要少创建一个
+        for (int i = 0; i < StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY - 1; i++)
         {
             ItemSlot newItemSlot = InstantiateItemSlot();
             if (newItemSlot != null)

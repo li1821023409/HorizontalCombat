@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 [CreateAssetMenu]
 public class InventoryDictionary : ScriptableObject
@@ -8,7 +9,7 @@ public class InventoryDictionary : ScriptableObject
     [System.Serializable]
     public struct InventoryEntry
     {
-        public ItemDetails item;
+        public ItemDetails itemDetails;
         public int count;
     }
 
@@ -25,35 +26,35 @@ public class InventoryDictionary : ScriptableObject
         inventoryDictionary.Clear();
         foreach (var entry in inventoryEntries)
         {
-            if (entry.item != null)
-                inventoryDictionary[entry.item] = entry.count;
+            if (entry.itemDetails != null)
+                inventoryDictionary[entry.itemDetails] = entry.count;
         }
     }
 
     // 设置或更新物品
-    public void SetItem(ItemDetails item, int reviseCount)
+    public void SetItem(ItemDetails itemDetails, int reviseCount)
     {
-        if (item == null) return;
-        if (!inventoryDictionary.ContainsKey(item) && reviseCount > 0)
+        if (itemDetails == null) return;
+        if (!inventoryDictionary.ContainsKey(itemDetails) && reviseCount > 0)
         {
-            inventoryDictionary.Add(item, reviseCount);
+            inventoryDictionary.Add(itemDetails, reviseCount);
         }
-        else if (inventoryDictionary[item] + reviseCount > 0)
+        else if (GetItemCount(itemDetails) + reviseCount > 0)
         {
-            inventoryDictionary[item] += reviseCount;
+            inventoryDictionary[itemDetails] = GetItemCount(itemDetails) + reviseCount;
         }
         else
         {
-            inventoryDictionary.Remove(item);
+            inventoryDictionary.Remove(itemDetails);
         }
         SyncToList();
     }
 
     // 获取物品数量
-    public int GetItemCount(ItemDetails item)
+    public int GetItemCount(ItemDetails itemDetails)
     {
-        if (item == null) return 0;
-        return inventoryDictionary.TryGetValue(item, out int count) ? count : 0;
+        if (itemDetails == null) return 0;
+        return inventoryDictionary.TryGetValue(itemDetails, out int count) ? count : 0;
     }
 
     // 同步字典到序列化列表
@@ -62,7 +63,14 @@ public class InventoryDictionary : ScriptableObject
         inventoryEntries.Clear();
         foreach (var kvp in inventoryDictionary)
         {
-            inventoryEntries.Add(new InventoryEntry { item = kvp.Key, count = kvp.Value });
+            inventoryEntries.Add(new InventoryEntry { itemDetails = kvp.Key, count = kvp.Value });
         }
+    }
+
+    public ItemDetails ContainsItemDetails(string itemId)
+    {
+        // 查询inventoryEntries中key中ItemDetails.m_InfoData是否包含itemInfoData
+        InventoryEntry inventoryEntry = inventoryEntries.Find(item => item.itemDetails.id == itemId);
+        return inventoryEntry.itemDetails;
     }
 }

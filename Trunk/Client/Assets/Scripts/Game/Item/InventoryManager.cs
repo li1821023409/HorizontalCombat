@@ -6,6 +6,7 @@ using UnityEngine;
 using WNEngine;
 using WNGameTool;
 using System.Linq;
+using static InventoryDictionary;
 
 namespace WNGameBase
 {
@@ -139,14 +140,21 @@ namespace WNGameBase
         public void AddItem(Item item, int reviseCount = 1)
         {
             // TODO：添加item的时候应该先查询后添加，这里需要注意一下
-            m_PreItem = GameBuilder.ContainsItemDetails(item.itemDetails.id);
+            // 先查询背包中是否包含该道具，不包含则创建一个
+            m_PreItem = localPawnInventory.ContainsItemDetails(item.itemDetails.id);
+
+            if (m_PreItem == null)
+            {
+                m_PreItem = item.itemDetails != null ? item.itemDetails : GameBuilder.ContainsItemDetails(item.itemDetails.id);
+            }
+
             // 添加道具
             if (localPawnInventory.Inventory.ContainsKey(m_PreItem))
             {
-                //LocalPawnInventoryDictionary[m_PreItem] += count;
+                // 获取当前数量并增加新数量
                 localPawnInventory.SetItem(m_PreItem, reviseCount);
             }
-            else if (localPawnInventory.GetItemCount(m_PreItem) < StaticInventoryData.INVENTORY_MAX_CARRYING_CAPACITY)
+            else if (localPawnInventory.Inventory.Count < StaticInventoryData.INVENTORY_MAX_CARRYING_CAPACITY)
             {
                 localPawnInventory.SetItem(m_PreItem, reviseCount);
             }
@@ -156,13 +164,12 @@ namespace WNGameBase
             }
 
 #if UNITY_EDITOR
-            // 这里用来测试道具栏添加功能，道具栏有或者道具栏数量没有达到最大，则刷新数据
+            // 这里用来测试道具栏添加功能，道具栏数量没有达到最大，添加到道具栏并通知UI更新
             // TODO：仅测试，不是最终效果
-            if (localPawnInventoryBar.Inventory.ContainsKey(m_PreItem) || 
-                (localPawnInventoryBar.GetItemCount(m_PreItem) < StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY))
+            if (localPawnInventoryBar.GetItemCount(m_PreItem) <= StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY)
             {
                 localPawnInventoryBar.SetItem(m_PreItem, reviseCount);
-                Param param = new ParamBuilder().AppendObject(item, "Item").AppendInt(localPawnInventoryBar.GetItemCount(m_PreItem),"Count").Build();
+                Param param = new ParamBuilder().AppendObject(m_PreItem, "ItemDetails").AppendInt(localPawnInventoryBar.GetItemCount(m_PreItem), "Count").Build();
                 UIEventManager.Instance.UIEventEmit(UIEvent.NotifyUpDateInventoryBar, "", param);
             }
 #endif
@@ -176,7 +183,13 @@ namespace WNGameBase
         /// <param name="ItemId"></param>
         public void SwitchItem(Item item)
         {
-            m_NextItem = GameBuilder.ContainsItemDetails(item.itemDetails.id);
+            m_NextItem = localPawnInventory.ContainsItemDetails(item.itemDetails.id);
+            if (m_NextItem == null)
+            {
+                // 拾取item并使用的时候可能存在背包没有的情况，这里直接添加一下
+                m_NextItem = item.itemDetails != null ? item.itemDetails : GameBuilder.ContainsItemDetails(item.itemDetails.id);
+                AddItem(item);
+            }
             if (m_NextItem != null)
             {
                 if (ItemParentTransform != null && (CurrentItem == null || item.itemDetails.id != CurrentItem.id))
@@ -185,12 +198,6 @@ namespace WNGameBase
                     if (CurrentItem != null && m_CurrentItemGameObject != null)
                     {
                         RemoveItem(item.itemDetails.id, m_CurrentItemGameObject);
-                    }
-
-                    // 拾取item并使用的时候可能存在背包没有的情况，这里直接添加一下
-                    if (!localPawnInventory.Inventory.ContainsKey(m_NextItem))
-                    {
-                        AddItem(item);
                     }
 
                     m_CurrentItemGameObject = GameBuilder.SpawnItem(m_NextItem.id, Vector3.zero, Quaternion.identity, ItemParentTransform);
