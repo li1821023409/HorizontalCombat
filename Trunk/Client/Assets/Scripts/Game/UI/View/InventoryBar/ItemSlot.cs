@@ -5,34 +5,37 @@ using UnityEngine;
 using UnityEngine.UI;
 using WNGameBase;
 
-public class ItemSlot : MonoBehaviour
+namespace UIFrame
 {
-    /// <summary>
-    /// 背景底图
-    /// </summary>
-    public Image ItemSlotBg;
-    /// <summary>
-    /// Item显示图层
-    /// </summary>
-    public Image ItemImage;
-    /// <summary>
-    /// Item数量显示
-    /// </summary>
-    public TextMeshProUGUI ItemCount;
-
-    public void Init()
+    public class ItemSlot : MonoBehaviour
     {
-        ItemImage.sprite = null;
-        ItemCount.text = null;
-    }
+        /// <summary>
+        /// 背景底图
+        /// </summary>
+        public Image ItemSlotBg;
+        /// <summary>
+        /// Item显示图层
+        /// </summary>
+        public Image ItemImage;
+        /// <summary>
+        /// Item数量显示
+        /// </summary>
+        public TextMeshProUGUI ItemCount;
 
-    public void SetItemSlot(ItemDetails itemDetails, int itemCount = 0)
-    {
-        ItemImage.sprite = itemDetails != null ? itemDetails.itemSprite : null;
-
-        if (itemCount > 0)
+        public void Init()
         {
-            ItemCount.text = itemCount.ToString();
+            ItemImage.sprite = null;
+            ItemCount.text = null;
+        }
+
+        public void SetItemSlot(ItemDetails itemDetails, int itemCount = 0)
+        {
+            ItemImage.sprite = itemDetails != null ? itemDetails.itemSprite : null;
+
+            if (itemCount > 0)
+            {
+                ItemCount.text = itemCount.ToString();
+            }
         }
     }
 }

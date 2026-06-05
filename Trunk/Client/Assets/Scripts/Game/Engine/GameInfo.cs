@@ -37,7 +37,7 @@ namespace WNGameBase
         /// </summary>
         public List<Pawn> m_SceneObjectPawns = new List<Pawn>();
 
-        public Pawn m_LocalPlayerPawn = null;
+        public LocalPlayerPawn m_LocalPlayerPawn = null;
 
         public PawnInfo m_LocalPlayerPawnInfo = null;
 

@@ -136,7 +136,7 @@ namespace WNGameBase
         public virtual void LoadPawn()
         {
             // ����Ĭ�Ͻ�ɫ
-            Pawn pawn = GameBuilder.SpawnPawn(GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity);
+            LocalPlayerPawn pawn = GameBuilder.SpawnPawn(GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity) as LocalPlayerPawn;
             if (pawn != null)
             {
                 GameInfo.m_LocalPlayerPawns.Add(pawn);

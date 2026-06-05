@@ -6,7 +6,7 @@ using UnityEngine;
 using WNEngine;
 using WNGameTool;
 using System.Linq;
-using static InventoryDictionary;
+
 
 namespace WNGameBase
 {
@@ -37,30 +37,24 @@ namespace WNGameBase
         /// 当前的道具信息
         /// </summary>
         private ItemDetails m_CurrentItem = null;
-
-        /// <summary>
-        /// 切换的道具信息
-        /// </summary>
-        private ItemDetails m_NextItem = null;
-
-        /// <summary>
-        /// 添加到背包的道具信息
-        /// </summary>
-        private ItemDetails m_PreItem = null;
-
-        /// <summary>
-        /// 当前使用的道具信息
-        /// </summary>
         public ItemDetails CurrentItem
         {
             get { return m_CurrentItem; }
         }
 
+        /// <summary>
+        /// 切换的道具信息
+        /// </summary>
+        private ItemDetails m_NextItem = null;
         public ItemDetails NextItem
         {
             get { return m_NextItem; }
         }
 
+        /// <summary>
+        /// 添加到背包的道具信息
+        /// </summary>
+        private ItemDetails m_PreItem = null;
         public ItemDetails PreItem
         {
             get { return m_PreItem; }
@@ -90,47 +84,68 @@ namespace WNGameBase
         /// <summary>
         /// 本地玩家库存
         /// </summary>
-        public InventoryDictionary localPawnInventory;
+        public InventoryDictionary LocalPawnInventory
+        {
+            set
+            {
+                if (GameInfo != null && GameInfo.m_LocalPlayerPawn != null)
+                {
+                    GameInfo.m_LocalPlayerPawn.inventory = value;
+                }
+                else
+                {
+                    Debug.LogError("[aoandouli] (GameInfo = null || GameInfo.m_LocalPlayerPawn = null)");
+                }
+            }
+            get
+            {
+                if (GameInfo != null && GameInfo.m_LocalPlayerPawn != null)
+                {
+                    return GameInfo.m_LocalPlayerPawn.inventory;
+                }
+                else
+                {
+                    Debug.LogError("[aoandouli] (GameInfo = null || GameInfo.m_LocalPlayerPawn = null)");
+                    return null;
+                }
+            }
+        }
         /// <summary>
-        /// 本地玩家显示栏中的道具
+        /// 本地玩家显示栏中的道具（固定索引数组，保证顺序确定性）
+        /// 道具数量统一从 LocalPawnInventory 中获取
         /// </summary>
-        public InventoryDictionary localPawnInventoryBar;
+        public ItemDetails[] LocalPawnInventoryBar
+        {
+            set
+            {
+                if (GameInfo != null && GameInfo.m_LocalPlayerPawn != null)
+                {
+                    GameInfo.m_LocalPlayerPawn.inventoryBar = value;
+                }
+                else
+                {
+                    Debug.LogError("[aoandouli] (GameInfo = null || GameInfo.m_LocalPlayerPawn = null)");
+                }
+            }
+            get
+            {
+                if (GameInfo != null && GameInfo.m_LocalPlayerPawn != null)
+                {
+                    return GameInfo.m_LocalPlayerPawn.inventoryBar;
+                }
+                else
+                {
+                    Debug.LogError("[aoandouli] (GameInfo = null || GameInfo.m_LocalPlayerPawn = null)");
+                    return null;
+                }
+            }
+        }
 
         public void Init()
         {
-            CreateInventory();
             GameInfo = GameInfo.Instance;
             GameBuilder = GameBuilder.Instance;
-            AddListener();
-        }
-
-        public void CreateInventory()
-        {
-            // 先判断是否已经有了LocalPawnInventory，没有就创建一个
-            localPawnInventory = AssetDatabase.LoadAssetAtPath<InventoryDictionary>(StaticInventoryData.INVENTORY_DICTIONARY_PATH + StaticInventoryData.LOCAL_PAWN_INVENTORY);
-            if (localPawnInventory == null)
-            {
-                Debug.LogWarning("[aoandouli]" + StaticInventoryData.LOCAL_PAWN_INVENTORY + ".asset 文件不存在.");
-                localPawnInventory = CustomMenu.CreateInventoryDictionary(StaticInventoryData.LOCAL_PAWN_INVENTORY);
-            }
-
-            // 先判断是否已经有了LocalPawnInventoryBar，没有就创建一个
-            localPawnInventoryBar = AssetDatabase.LoadAssetAtPath<InventoryDictionary>(StaticInventoryData.INVENTORY_DICTIONARY_PATH + StaticInventoryData.LOCAL_PAWN_INVENTORY_BAR);
-            if (localPawnInventoryBar == null)
-            {
-                Debug.LogWarning("[aoandouli]" + StaticInventoryData.LOCAL_PAWN_INVENTORY_BAR + ".asset 文件不存在.");
-                localPawnInventoryBar = CustomMenu.CreateInventoryDictionary(StaticInventoryData.LOCAL_PAWN_INVENTORY_BAR);
-            }
-        }
-
-        public void AddListener()
-        {
-            //InputManager.Instance.NumberKeysEvent += Test;
-        }
-
-        public void RemoveListener()
-        {
-            //InputManager.Instance.NumberKeysEvent -= Test;
+            AddInputEvent();
         }
 
         /// <summary>
@@ -139,9 +154,12 @@ namespace WNGameBase
         /// <param name="item">添加的item</param>
         public void AddItem(Item item, int reviseCount = 1)
         {
+            if (LocalPawnInventory == null)
+                return;
+
             // TODO：添加item的时候应该先查询后添加，这里需要注意一下
             // 先查询背包中是否包含该道具，不包含则创建一个
-            m_PreItem = localPawnInventory.ContainsItemDetails(item.itemDetails.id);
+            m_PreItem = LocalPawnInventory.ContainsItemDetails(item.itemDetails.id);
 
             if (m_PreItem == null)
             {
@@ -149,14 +167,14 @@ namespace WNGameBase
             }
 
             // 添加道具
-            if (localPawnInventory.Inventory.ContainsKey(m_PreItem))
+            if (LocalPawnInventory.Inventory.ContainsKey(m_PreItem))
             {
                 // 获取当前数量并增加新数量
-                localPawnInventory.SetItem(m_PreItem, reviseCount);
+                LocalPawnInventory.SetItem(m_PreItem, reviseCount);
             }
-            else if (localPawnInventory.Inventory.Count < StaticInventoryData.INVENTORY_MAX_CARRYING_CAPACITY)
+            else if (LocalPawnInventory.Inventory.Count < StaticInventoryData.INVENTORY_MAX_CARRYING_CAPACITY)
             {
-                localPawnInventory.SetItem(m_PreItem, reviseCount);
+                LocalPawnInventory.SetItem(m_PreItem, reviseCount);
             }
             else
             {
@@ -164,12 +182,23 @@ namespace WNGameBase
             }
 
 #if UNITY_EDITOR
-            // 这里用来测试道具栏添加功能，道具栏数量没有达到最大，添加到道具栏并通知UI更新
+            if (LocalPawnInventoryBar == null)
+                return;
+
             // TODO：仅测试，不是最终效果
-            if (localPawnInventoryBar.GetItemCount(m_PreItem) <= StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY)
+            // 这里用来测试道具栏添加功能，将道具加入显示栏固定槽位并通知UI更新
+            // 查找道具是否已在显示栏中，否则分配到第一个空闲槽位
+            int slotIndex = System.Array.FindIndex(LocalPawnInventoryBar, x => x != null && x.id == m_PreItem.id);
+            if (slotIndex == -1)
             {
-                localPawnInventoryBar.SetItem(m_PreItem, reviseCount);
-                Param param = new ParamBuilder().AppendObject(m_PreItem, "ItemDetails").AppendInt(localPawnInventoryBar.GetItemCount(m_PreItem), "Count").Build();
+                slotIndex = System.Array.FindIndex(LocalPawnInventoryBar, x => x == null);
+            }
+            if (slotIndex >= 0 && slotIndex < StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY)
+            {
+                LocalPawnInventoryBar[slotIndex] = m_PreItem;
+                // 数量统一从 LocalPawnInventory 中获取
+                int count = LocalPawnInventory.GetItemCount(m_PreItem);
+                Param param = new ParamBuilder().AppendObject(m_PreItem, "ItemDetails").AppendInt(slotIndex, "SlotIndex").AppendInt(count, "Count").Build();
                 UIEventManager.Instance.UIEventEmit(UIEvent.NotifyUpDateInventoryBar, "", param);
             }
 #endif
@@ -183,7 +212,10 @@ namespace WNGameBase
         /// <param name="ItemId"></param>
         public void SwitchItem(Item item)
         {
-            m_NextItem = localPawnInventory.ContainsItemDetails(item.itemDetails.id);
+            if (LocalPawnInventory == null)
+                return;
+
+            m_NextItem = LocalPawnInventory.ContainsItemDetails(item.itemDetails.id);
             if (m_NextItem == null)
             {
                 // 拾取item并使用的时候可能存在背包没有的情况，这里直接添加一下
@@ -228,31 +260,25 @@ namespace WNGameBase
             GameBuilder.DestroyItem(itemId, itemObj);
         }
 
-        ///// <summary>
-        ///// TODO：测试用，后面删除
-        ///// </summary>
-        //public void Test(int numberKeys)
-        //{
-        //    if (numberKeys == 1)
-        //    {
-        //        SwitchItem("1001");
-        //    }
-        //    else if (numberKeys == 2)
-        //    {
-        //        SwitchItem("1002");
-        //    }
+        #region 设置按键绑定
+        protected virtual void AddInputEvent()
+        {
+            InputManager.Instance.NumberKeysEvent += SetNumberKeysParameters;
+        }
 
-        //    if (numberKeys == 6)
-        //    {
-        //        GameBuilder.MapSceneName = "Scene_Farm";
-        //        GameBuilder.SceneLoader.BuildMapScene(GameBuilder.MapSceneName);
-        //    }
+        // TODO：这里暂时用不到，先放这里
+        protected virtual void RemoveInputEvent()
+        {
+            InputManager.Instance.NumberKeysEvent += SetNumberKeysParameters;
+        }
 
-        //    if (numberKeys == 7)
-        //    {
-        //        GameBuilder.MapSceneName = "Scene_Farm 1";
-        //        GameBuilder.SceneLoader.BuildMapScene(GameBuilder.MapSceneName);
-        //    }
-        //}
+        /// <summary>
+        /// 设置数字键盘参数绑定
+        /// </summary>
+        public void SetNumberKeysParameters(int numberKeys)
+        {
+
+        }
+        #endregion
     }
 }

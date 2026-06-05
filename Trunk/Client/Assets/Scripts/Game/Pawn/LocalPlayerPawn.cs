@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using WNEngine;
+using WNGameTool;
 
 namespace WNGameBase
 {
@@ -26,6 +28,15 @@ namespace WNGameBase
             get { return m_MoveVector2; }
             set { m_MoveVector2 = value; }
         }
+
+        /// <summary>
+        /// 玩家库存
+        /// </summary>
+        public InventoryDictionary inventory;
+        /// <summary>
+        /// 玩家显示栏中的道具（固定索引数组，保证顺序确定性）
+        /// </summary>
+        public ItemDetails[] inventoryBar;
         #endregion
 
         protected override void Awake()
@@ -41,6 +52,7 @@ namespace WNGameBase
             GameInfo.Instance.m_LocalPlayerPawnInfo = pawnInfo;
 
             AddInputEvent();
+            CreateInventory();
         }
 
         public override void DestroyPawn()
@@ -55,6 +67,7 @@ namespace WNGameBase
             Move();
         }
 
+        #region 设置按键绑定
         protected virtual void AddInputEvent()
         {
             InputManager.Instance.MovementEvent += SetMoveParameters;
@@ -65,15 +78,16 @@ namespace WNGameBase
             InputManager.Instance.MovementEvent += SetMoveParameters;
         }
 
-        public virtual void Move()
-        {
-            m_Rigidbody2D.velocity = MoveVector2;
-        }
-
         // 设置移动参数
         protected virtual void SetMoveParameters(Vector2 inputVector)
         {
             MoveVector2 = MoveSpeed * inputVector;
+        }
+        #endregion
+
+        public virtual void Move()
+        {
+            m_Rigidbody2D.velocity = MoveVector2;
         }
 
         /// <summary>
@@ -105,6 +119,22 @@ namespace WNGameBase
             {
                 Debug.Log("[aondouli] LocalPlayerPawn.OnTriggerExit2D Item.id : " + item.itemDetails.id + " Item.Name : " + item.itemDetails.itemName);
             }
+        }
+        #endregion
+
+        #region 
+        public void CreateInventory()
+        {
+            // 先判断是否已经有了LocalPawnInventory，没有就创建一个
+            inventory = AssetDatabase.LoadAssetAtPath<InventoryDictionary>(StaticInventoryData.INVENTORY_DICTIONARY_PATH + StaticInventoryData.LOCAL_PAWN_INVENTORY);
+            if (inventory == null)
+            {
+                Debug.LogWarning("[aoandouli]" + StaticInventoryData.LOCAL_PAWN_INVENTORY + ".asset 文件不存在.");
+                inventory = CustomMenu.CreateInventoryDictionary(StaticInventoryData.LOCAL_PAWN_INVENTORY);
+            }
+
+            // 初始化显示栏为固定大小数组，保证遍历顺序确定性
+            inventoryBar = new ItemDetails[StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY];
         }
         #endregion
     }

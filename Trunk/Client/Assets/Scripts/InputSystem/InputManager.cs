@@ -87,7 +87,7 @@ namespace WNGameBase
             InputControl.GamePlay.Move.canceled -= OnInputVlue;
         }
 
-        // 移动相关参数
+        // 数字按键相关参数
         public delegate void NumberKeysDelegate(int numberKeys);
         public event NumberKeysDelegate NumberKeysEvent;
         private void OnUseItem(InputAction.CallbackContext ctx)
