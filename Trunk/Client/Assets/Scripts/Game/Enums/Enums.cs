@@ -34,7 +34,8 @@ public enum UIEvent
                           // 以下为游戏中的通知逻辑
     NotifyInitialPanel = 100, // 初始化游戏初始面板
     NotifyDialogueRootPanel,  // 初始化游戏对话根面板
-    NotifyUpDateInventoryBar,  // 初始化游戏对话根面板
+    NotifyUpDateInventoryBar,  // 更新道具栏显示
+    NotifyDropItemFromBar,     // 道具从显示栏拖拽放置到地图
 }
 
 /*该UI枚举主要用于层级创建*/

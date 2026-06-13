@@ -7,9 +7,9 @@ namespace Dialogue
     public enum BuildMethod
     {
         None = 0,
-        Instant = 1,    // ���̲���
-        Typewriter = 2, // ���ֲ���
-        Fade = 3,       // ����ʧ
+        Instant = 1,    // 瞬间显示模式
+        Typewriter = 2, // 逐字显示模式
+        Fade = 3,       // 淡出消失
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace Dialogue
         public string ProText { get; private set; } = "";
         public int ProTextLinght = 0;
         /// <summary>
-        /// ����Ŀ���ı�
+        /// 完整目标文本
         /// </summary>
         public string FulltargetText
         {

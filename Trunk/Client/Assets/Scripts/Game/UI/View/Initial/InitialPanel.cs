@@ -5,19 +5,19 @@ namespace UIFrame
 {
     public class InitialPanel : Panel
     {
-        #region ��������
+        #region 面板属性
         public override ViewCanvasLevel canvasLevel => ViewCanvasLevel.BASE;
         public override ViewCoverType coverType => ViewCoverType.FULLSCREEN;
         public override void OnCreate() => View = new InitialView();
         public override string resPath => "Prefabs/UI/Initial/InitialPanel";
         #endregion
 
-        #region ��������
+        #region 私有变量
         private InitialView view;
         private InitialManager manager;
         #endregion
 
-        #region ��������
+        #region 面板逻辑
         public override void OnShow()
         {
 

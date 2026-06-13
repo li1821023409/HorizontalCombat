@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ����item����
+/// Item类定义
 /// </summary>
 namespace WNGameBase
 {
-    // �������2D��ײ���
+    // 需要绑定2D碰撞器
     [RequireComponent(typeof(Collider2D))] 
     public class Item : MonoBehaviour
     {
-        // item��ϸ��Ϣ
+        // item详细信息
         public ItemDetails itemDetails;
 
         private int itemId = 0;
@@ -41,8 +41,8 @@ namespace WNGameBase
             }
         }
 
-        #region ����ק�ζ�����߼�
-        // ��ʱ��Э��ʵ�֣����濴���Ƿ��ö�����
+        #region 物品拖拽相关逻辑
+        // 暂时用协程实现，后续看是否需要独立类
         Coroutine dragCoroutine;
 
         public void CanBeDrag(Vector3 velocity)
@@ -52,7 +52,7 @@ namespace WNGameBase
                 return;
             }
 
-            // ��ʱ�����յ��ٶ�Ӱ�죬�����ٿ�
+            // 暂时未受到速度影响，后续再看
         }
 
         private IEnumerable DragCoroutine()

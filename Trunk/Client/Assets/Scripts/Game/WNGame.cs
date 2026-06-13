@@ -8,7 +8,7 @@ using WNEngine;
 namespace WNGameBase
 {
     /// <summary>
-    /// ����������Ϸ���еĻ����߼�
+    /// 处理控制游戏运行的基础逻辑
     /// </summary>
     public class WNGame : UnitySingleton<WNGame>
     {
@@ -39,7 +39,7 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// �Լ����ø���Ƶ��
+        /// 自定义设置更新频率
         /// </summary>
         protected virtual void Tick()
         {
@@ -50,7 +50,7 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// ��Ϸ����UI����
+        /// 游戏场景UI构建
         /// </summary>
         public void BuilderGameUIScenes()
         {
@@ -63,7 +63,7 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// ��Ϸ��������
+        /// 游戏构建器
         /// </summary>
         public void BuilderGameBuilder()
         {
@@ -71,7 +71,7 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// �������
+        /// 摄像机管理
         /// </summary>
         public void BuilderCameraManager()
         {
@@ -111,31 +111,31 @@ namespace WNGameBase
         }
 
         /// <summary>
-        /// �����ǳ�ʼ��������Դ
+        /// 加载非初始化的资源
         /// </summary>
         protected virtual void LoadResource()
         {
-            // �ȶ�ȡAssetID��Դ�ļ�
+            // 先读取AssetID资源文件
             GameBuilder.LoadAssetIDData();
         }
 
         public void MovePawnToCurrentMap()
         {
-            /*Ҫȷ����map��ͼ������ɲ���ȡ��TilemapGrid�ſ���*/
+            /*要确保map地图加载完成并获取TilemapGrid才可以*/
             if (GameInfo.m_LocalPlayerPawn == null)
             {
-                // ���Pawn��δ��������Ҫ���´���һ��
+                // 如果Pawn尚未创建，需要重新创建一个
                 LoadPawn();
             }
             GameBuilder.SceneLoader.MoveGameObjectToScene(GameInfo.m_LocalPlayerPawn.gameObject, GameInfo.m_LocalPlayerPawnInfo.id);
         }
 
         /// <summary>
-        /// ������ɫ
+        /// 加载角色
         /// </summary>
         public virtual void LoadPawn()
         {
-            // ����Ĭ�Ͻ�ɫ
+            // 创建默认角色
             LocalPlayerPawn pawn = GameBuilder.SpawnPawn(GameBuilder.DefaultPawnID, Vector3.zero, Quaternion.identity) as LocalPlayerPawn;
             if (pawn != null)
             {
@@ -143,7 +143,7 @@ namespace WNGameBase
                 GameInfo.m_LocalPlayerPawn = pawn;
             }
 
-            // TODO : ����Ĭ�ϵ�Item��Id = 1001�֣�������������ã������Ƴ��������������Item
+            // TODO : 这里默认的Item的Id = 1001，后续做成配置方式，需要移除并重新创建Item
             Item item = new Item();
             item.Init(GameBuilder.ContainsItemDetails(GameBuilder.DefaultItemID));
             InventoryManager.AddItem(item);

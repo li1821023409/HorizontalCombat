@@ -97,7 +97,7 @@ namespace UIFrame
                     }
                 }
             }
-            else if (command.ToLower().StartsWith("createitem")) //createitem + Itemid + 位置     例：createitem 1002 (0,0)
+            else if (command.ToLower().StartsWith("createitem")) //createitem + Itemid + 位置     例：createitem 1002 (0,0) createitem 1001 (0,0)
             {
                 string[] getParam = command.Split(new char[1] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                 if (getParam.Length >= 3)

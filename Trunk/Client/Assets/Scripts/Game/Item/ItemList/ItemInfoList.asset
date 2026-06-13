@@ -12,30 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a4013b5373094a4b9f28b95e7474766, type: 3}
   m_Name: ItemInfoList
   m_EditorClassIdentifier: 
-  itemDetails:
-  - id: 
-    itemType: 0
-    itemName: 
-    itemSprite: {fileID: 0}
-    itemDetailedDescription: 
-    itemPath: 
-    isStartingItem: 0
-    canBePickedUp: 0
-    canBeDropped: 0
-    canBeEaten: 0
-    canBeCarried: 0
-    canBeDrag: 0
-    canBeOverlap: 0
-  - id: 
-    itemType: 0
-    itemName: 
-    itemSprite: {fileID: 0}
-    itemDetailedDescription: 
-    itemPath: 
-    isStartingItem: 0
-    canBePickedUp: 0
-    canBeDropped: 0
-    canBeEaten: 0
-    canBeCarried: 0
-    canBeDrag: 0
-    canBeOverlap: 0
+  itemDetails: []

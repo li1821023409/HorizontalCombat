@@ -1,14 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using static WNGameBase.ObjectPool;
 
 namespace WNGameBase
 {
     /// <summary>
-    /// 属于基层，如果后续有热更代码，请勿轻易热更基础代码
+    /// 对象池管理器 - 属于基层，如果后续有热更代码，请勿轻易热更基础代码
     /// </summary>
     public class ObjectPool : UnitySingleton<ObjectPool>
     {
@@ -16,7 +12,6 @@ namespace WNGameBase
         public class Pool
         {
             public string assetId;
-            // TODO：这里稍后改成路径，之后创建通过路径创建吧，哎，忘记了，以后改一下
             public GameObject prefab;
             public int initialSize = 10;
             [Tooltip("0 for unlimited")]
@@ -36,29 +31,71 @@ namespace WNGameBase
             public float peakUtilizationPercent => totalObjects > 0 ? (float)peakUsage / totalObjects * 100f : 0f;
         }
 
-        // 单例模式，方便全局访问
-        //public static ObjectPool Instance { get; private set; }
+        /// <summary>
+        /// 池运行时数据，将队列、计数与配置引用整合为单一结构
+        /// </summary>
+        private class PoolRuntime
+        {
+            public Pool Config;
+            public readonly Queue<GameObject> Available = new Queue<GameObject>();
+            public int ActiveCount;
+            public int PeakUsage;
 
-        [SerializeField] private bool createPoolsOnAwake = true;
+            public int TotalCount => ActiveCount + Available.Count;
+
+            /// <summary>记录一个活跃对象并更新峰值</summary>
+            public void RecordActive()
+            {
+                ActiveCount++;
+                if (ActiveCount > PeakUsage)
+                    PeakUsage = ActiveCount;
+            }
+
+            /// <summary>释放一个活跃对象</summary>
+            public void ReleaseActive()
+            {
+                if (ActiveCount > 0)
+                    ActiveCount--;
+            }
+        }
+
         [SerializeField] private List<Pool> pools = new List<Pool>();
 
-        // 对象池数据结构
-        private Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
+        private readonly Dictionary<string, PoolRuntime> runtimeMap = new Dictionary<string, PoolRuntime>();
 
-        // 用于跟踪统计信息的字典
-        private Dictionary<string, int> activeCountByAssetId = new Dictionary<string, int>();
-        private Dictionary<string, int> peaks = new Dictionary<string, int>();
-
-        public Pool AddPool(string m_assetId, GameObject m_prefab, Transform m_poolParent = null, int m_initialSize = 1, int m_maxSize = 1)
+        /// <summary>
+        /// 添加池配置
+        /// </summary>
+        public Pool AddPool(string assetId, GameObject prefab, Transform poolParent = null, int initialSize = 1, int maxSize = 1)
         {
-            Pool pool = new Pool();
-            pool.assetId = m_assetId;
-            pool.prefab = m_prefab;
-            pool.initialSize = m_initialSize;
-            pool.maxSize = m_maxSize;
-            pool.poolParent = m_poolParent;
-            pools.Add(pool);
+            if (string.IsNullOrEmpty(assetId))
+            {
+                Debug.LogError("Cannot add pool: assetId is null or empty");
+                return null;
+            }
 
+            if (prefab == null)
+            {
+                Debug.LogError("Cannot add pool: prefab is null");
+                return null;
+            }
+
+            if (runtimeMap.ContainsKey(assetId) || pools.Exists(p => p.assetId == assetId))
+            {
+                Debug.LogWarning($"Pool '{assetId}' already exists");
+                return null;
+            }
+
+            Pool pool = new Pool
+            {
+                assetId = assetId,
+                prefab = prefab,
+                initialSize = initialSize,
+                maxSize = maxSize,
+                poolParent = poolParent
+            };
+
+            pools.Add(pool);
             return pool;
         }
 
@@ -67,9 +104,7 @@ namespace WNGameBase
         /// </summary>
         public void InitializePools()
         {
-            poolDictionary.Clear();
-            activeCountByAssetId.Clear();
-            peaks.Clear();
+            runtimeMap.Clear();
 
             foreach (Pool pool in pools)
             {
@@ -79,71 +114,65 @@ namespace WNGameBase
                     continue;
                 }
 
-                // 创建父物体用于组织层级
-                //GameObject poolContainer = new GameObject($"Pool_{pool.assetId}");
-                //poolContainer.transform.SetParent(transform);
-                //pool.poolParent = poolContainer.transform;
-
-                InitPool(pool); 
+                InitializePool(pool);
             }
         }
 
-        public void InitPool(Pool pool)
+        private void InitializePool(Pool pool)
         {
-            Queue<GameObject> objectPool = new Queue<GameObject>();
-
-            // 预先实例化对象
-            for (int i = 0; i < pool.initialSize; i++)
+            if (runtimeMap.ContainsKey(pool.assetId))
             {
-                GameObject obj = CreateNewPoolObject(pool);
-                objectPool.Enqueue(obj);
+                Debug.LogWarning($"Pool '{pool.assetId}' is already initialized, skipping");
+                return;
             }
 
-            // 添加到字典
-            poolDictionary.Add(pool.assetId, objectPool);
-            activeCountByAssetId.Add(pool.assetId, 0);
-            peaks.Add(pool.assetId, 0);
+            var runtime = new PoolRuntime { Config = pool };
 
+            for (int i = 0; i < pool.initialSize; i++)
+            {
+                GameObject obj = InstantiatePoolObject(pool);
+                runtime.Available.Enqueue(obj);
+            }
+
+            runtimeMap.Add(pool.assetId, runtime);
             Debug.Log($"Pool '{pool.assetId}' initialized with {pool.initialSize} objects");
         }
 
+        /// <summary>
+        /// 检查指定池是否存在
+        /// </summary>
         public bool PoolContains(string assetId)
         {
-            return poolDictionary.ContainsKey(assetId);
+            return runtimeMap.ContainsKey(assetId);
         }
 
         /// <summary>
         /// 创建池对象并添加到池中
         /// </summary>
-        public GameObject CreateAndAddPoolObject(string m_assetId, string path, Vector3 position, Quaternion rotation, Transform m_poolParent = null, int m_initialSize = 1, int m_maxSize = 1)
+        public GameObject CreateAndAddPoolObject(string assetId, string path, Vector3 position, Quaternion rotation, Transform poolParent = null, int initialSize = 1, int maxSize = 1)
         {
             GameObject prefab = Resources.Load<GameObject>(path);
             if (prefab == null)
             {
+                Debug.LogError($"Failed to load prefab at path '{path}'");
                 return null;
             }
-            Pool pool = AddPool(m_assetId, prefab, m_poolParent, m_initialSize, m_maxSize);
-            InitPool(pool);
-            return SpawnFromPool(m_assetId, position, rotation, m_poolParent);
+
+            Pool pool = AddPool(assetId, prefab, poolParent, initialSize, maxSize);
+            if (pool == null) return null;
+
+            InitializePool(pool);
+            return SpawnFromPool(assetId, position, rotation, poolParent);
         }
 
         /// <summary>
-        /// 创建新的池对象
+        /// 实例化新的池对象（不激活）
         /// </summary>
-        private GameObject CreateNewPoolObject(Pool pool)
+        private GameObject InstantiatePoolObject(Pool pool)
         {
             GameObject obj = Instantiate(pool.prefab);
             obj.SetActive(false);
             obj.transform.SetParent(pool.poolParent);
-
-            //// 添加PooledObject组件以便跟踪
-            //PooledObject pooledObj = obj.GetComponent<PooledObject>();
-            //if (pooledObj == null)
-            //{
-            //    pooledObj = obj.AddComponent<PooledObject>();
-            //}
-            //pooledObj.SetPool(this, pool.assetId);
-
             return obj;
         }
 
@@ -152,76 +181,54 @@ namespace WNGameBase
         /// </summary>
         public GameObject SpawnFromPool(string assetId, Vector3 position, Quaternion rotation, Transform parent)
         {
-            if (!poolDictionary.ContainsKey(assetId))
+            if (!runtimeMap.TryGetValue(assetId, out PoolRuntime runtime))
             {
                 Debug.LogWarning($"Pool with assetId '{assetId}' doesn't exist.");
                 return null;
             }
 
-            // 更新活跃对象计数
-            activeCountByAssetId[assetId]++;
+            runtime.RecordActive();
 
-            // 更新峰值使用量
-            if (activeCountByAssetId[assetId] > peaks[assetId])
+            GameObject obj;
+
+            if (runtime.Available.Count > 0)
             {
-                peaks[assetId] = activeCountByAssetId[assetId];
-            }
+                obj = runtime.Available.Dequeue();
 
-            // 获取对象队列
-            Queue<GameObject> objectPool = poolDictionary[assetId];
-
-            // 如果池为空，尝试创建新对象
-            if (objectPool.Count == 0)
-            {
-                Pool poolInfo = pools.Find(p => p.assetId == assetId);
-
-                // 检查是否达到最大容量限制
-                if (poolInfo.maxSize > 0 && activeCountByAssetId[assetId] >= poolInfo.maxSize)
+                // 对象可能在场景切换期间被销毁
+                if (obj == null)
                 {
-                    Debug.LogWarning($"Pool '{assetId}' has reached its maximum size ({poolInfo.maxSize}). Cannot create more objects.");
-                    activeCountByAssetId[assetId]--; // 恢复计数
-                    return null;
+                    obj = InstantiatePoolObject(runtime.Config);
+                    Debug.LogWarning($"Object in pool '{assetId}' was destroyed. Created a new one.");
+                }
+            }
+            else
+            {
+                // 超出最大容量时仍创建对象，但归还时将丢弃溢出对象
+                if (runtime.Config.maxSize > 0 && runtime.ActiveCount > runtime.Config.maxSize)
+                {
+                    Debug.LogWarning($"Pool '{assetId}' exceeded max capacity ({runtime.Config.maxSize}). Creating overflow object. Active: {runtime.ActiveCount}");
                 }
 
-                GameObject newObj = CreateNewPoolObject(poolInfo);
-                Debug.Log($"Pool '{assetId}' expanded with one new object. Total: {activeCountByAssetId[assetId] + objectPool.Count}");
-                return SetupPooledObject(newObj, position, rotation, parent);
+                obj = InstantiatePoolObject(runtime.Config);
+                Debug.Log($"Pool '{assetId}' expanded with one new object. Total: {runtime.TotalCount}");
             }
 
-            // 取出并设置对象
-            GameObject pooledObject = objectPool.Dequeue();
-
-            // 检查对象是否已被销毁（例如在场景切换期间）
-            if (pooledObject == null)
-            {
-                Pool poolInfo = pools.Find(p => p.assetId == assetId);
-                pooledObject = CreateNewPoolObject(poolInfo);
-                Debug.LogWarning($"Object in pool '{assetId}' was destroyed. Created a new one.");
-            }
-
-            return SetupPooledObject(pooledObject, position, rotation, parent);
+            return ActivateObject(obj, position, rotation, parent);
         }
 
         /// <summary>
-        /// 设置池对象的位置、旋转并激活
+        /// 设置对象变换并激活，调用 IPoolable.OnObjectSpawn
         /// </summary>
-        private GameObject SetupPooledObject(GameObject obj, Vector3 position, Quaternion rotation, Transform parent)
+        private GameObject ActivateObject(GameObject obj, Vector3 position, Quaternion rotation, Transform parent)
         {
-            obj.transform.parent = parent;
-
-            // 设置变换
+            obj.transform.SetParent(parent);
             obj.transform.position = position;
             obj.transform.rotation = rotation;
-
-            // 激活对象
             obj.SetActive(true);
 
-            // 获取IPoolable接口并重置
-            IPoolable poolable = obj.GetComponent<IPoolable>();
-            if (poolable != null)
-            {
+            if (obj.TryGetComponent<IPoolable>(out var poolable))
                 poolable.OnObjectSpawn();
-            }
 
             return obj;
         }
@@ -231,31 +238,34 @@ namespace WNGameBase
         /// </summary>
         public void ReturnToPool(string assetId, GameObject obj)
         {
-            if (!poolDictionary.ContainsKey(assetId))
+            if (obj == null)
+            {
+                Debug.LogWarning($"Trying to return a null object to pool '{assetId}'");
+                return;
+            }
+
+            if (!runtimeMap.TryGetValue(assetId, out PoolRuntime runtime))
             {
                 Debug.LogWarning($"Trying to return an object to non-existent pool '{assetId}'");
                 return;
             }
 
-            // 更新活跃对象计数
-            activeCountByAssetId[assetId] = Mathf.Max(0, activeCountByAssetId[assetId] - 1);
+            runtime.ReleaseActive();
 
-            // 放到池缓存层的对应层
-            Pool poolInfo = pools.Find(p => p.assetId == assetId);
-            obj.transform.parent = poolInfo.poolParent;
-
-            // 重置对象状态
-            obj.SetActive(false);
-
-            // 获取IPoolable接口并重置
-            IPoolable poolable = obj.GetComponent<IPoolable>();
-            if (poolable != null)
-            {
+            if (obj.TryGetComponent<IPoolable>(out var poolable))
                 poolable.OnObjectReturn();
+
+            // 池内对象总数已达最大容量，销毁溢出对象
+            if (runtime.Config.maxSize > 0 && runtime.TotalCount >= runtime.Config.maxSize)
+            {
+                Destroy(obj);
+                Debug.Log($"Pool '{assetId}' at max capacity ({runtime.Config.maxSize}). Discarded overflow object.");
+                return;
             }
 
-            // 返回到池
-            poolDictionary[assetId].Enqueue(obj);
+            obj.transform.SetParent(runtime.Config.poolParent);
+            obj.SetActive(false);
+            runtime.Available.Enqueue(obj);
         }
 
         /// <summary>
@@ -263,25 +273,18 @@ namespace WNGameBase
         /// </summary>
         public List<PoolStats> GetPoolStats()
         {
-            List<PoolStats> stats = new List<PoolStats>();
+            var stats = new List<PoolStats>(runtimeMap.Count);
 
-            foreach (var poolEntry in poolDictionary)
+            foreach (var entry in runtimeMap)
             {
-                string assetId = poolEntry.Key;
-                Queue<GameObject> pool = poolEntry.Value;
-
-                int active = activeCountByAssetId.ContainsKey(assetId) ? activeCountByAssetId[assetId] : 0;
-                int available = pool.Count;
-                int total = active + available;
-                int peak = peaks.ContainsKey(assetId) ? peaks[assetId] : 0;
-
+                PoolRuntime runtime = entry.Value;
                 stats.Add(new PoolStats
                 {
-                    assetId = assetId,
-                    totalObjects = total,
-                    activeObjects = active,
-                    availableObjects = available,
-                    peakUsage = peak
+                    assetId = entry.Key,
+                    totalObjects = runtime.TotalCount,
+                    activeObjects = runtime.ActiveCount,
+                    availableObjects = runtime.Available.Count,
+                    peakUsage = runtime.PeakUsage
                 });
             }
 
@@ -293,59 +296,53 @@ namespace WNGameBase
         /// </summary>
         public void PrewarmPool(string assetId, int additionalCount)
         {
-            if (!poolDictionary.ContainsKey(assetId))
+            if (additionalCount <= 0)
+            {
+                Debug.LogWarning($"Prewarm count must be positive, got {additionalCount}");
+                return;
+            }
+
+            if (!runtimeMap.TryGetValue(assetId, out PoolRuntime runtime))
             {
                 Debug.LogWarning($"Cannot prewarm non-existent pool '{assetId}'");
                 return;
             }
 
-            Pool poolInfo = pools.Find(p => p.assetId == assetId);
-            if (poolInfo == null) return;
-
             // 检查最大大小限制
-            int currentTotal = poolDictionary[assetId].Count + activeCountByAssetId[assetId];
-            if (poolInfo.maxSize > 0 && currentTotal + additionalCount > poolInfo.maxSize)
+            if (runtime.Config.maxSize > 0)
             {
-                additionalCount = Mathf.Max(0, poolInfo.maxSize - currentTotal);
-
-                if (additionalCount == 0)
+                int remaining = runtime.Config.maxSize - runtime.TotalCount;
+                if (remaining <= 0)
                 {
-                    Debug.LogWarning($"Cannot prewarm pool '{assetId}' further: already at maximum size ({poolInfo.maxSize})");
+                    Debug.LogWarning($"Cannot prewarm pool '{assetId}' further: already at maximum size ({runtime.Config.maxSize})");
                     return;
                 }
+
+                if (additionalCount > remaining)
+                    additionalCount = remaining;
             }
 
-            // 创建额外对象
             for (int i = 0; i < additionalCount; i++)
             {
-                GameObject obj = CreateNewPoolObject(poolInfo);
-                poolDictionary[assetId].Enqueue(obj);
+                GameObject obj = InstantiatePoolObject(runtime.Config);
+                runtime.Available.Enqueue(obj);
             }
 
-            Debug.Log($"Prewarmed '{assetId}' pool with {additionalCount} additional objects. Total: {poolDictionary[assetId].Count + activeCountByAssetId[assetId]}");
+            Debug.Log($"Prewarmed '{assetId}' pool with {additionalCount} additional objects. Total: {runtime.TotalCount}");
         }
 
         /// <summary>
-        /// 清空池
+        /// 清空指定池中的可用对象
         /// </summary>
         public void ClearPool(string assetId)
         {
-            if (!poolDictionary.ContainsKey(assetId))
+            if (!runtimeMap.TryGetValue(assetId, out PoolRuntime runtime))
             {
                 Debug.LogWarning($"Cannot clear non-existent pool '{assetId}'");
                 return;
             }
 
-            Queue<GameObject> pool = poolDictionary[assetId];
-            while (pool.Count > 0)
-            {
-                GameObject obj = pool.Dequeue();
-                if (obj != null)
-                {
-                    Destroy(obj);
-                }
-            }
-
+            DestroyAvailableObjects(runtime);
             Debug.Log($"Pool '{assetId}' cleared");
         }
 
@@ -354,15 +351,10 @@ namespace WNGameBase
         /// </summary>
         public void ClearAllPools()
         {
-            foreach (var assetId in poolDictionary.Keys.ToList())
-            {
-                ClearPool(assetId);
-            }
+            foreach (var entry in runtimeMap)
+                DestroyAvailableObjects(entry.Value);
 
-            poolDictionary.Clear();
-            activeCountByAssetId.Clear();
-            peaks.Clear();
-
+            runtimeMap.Clear();
             Debug.Log("All pools cleared");
         }
 
@@ -373,16 +365,13 @@ namespace WNGameBase
         {
             if (assetId != null)
             {
-                if (peaks.ContainsKey(assetId))
-                    peaks[assetId] = activeCountByAssetId.ContainsKey(assetId) ? activeCountByAssetId[assetId] : 0;
+                if (runtimeMap.TryGetValue(assetId, out PoolRuntime runtime))
+                    runtime.PeakUsage = runtime.ActiveCount;
             }
             else
             {
-                // 重置所有池的峰值
-                foreach (var key in peaks.Keys.ToList())
-                {
-                    peaks[key] = activeCountByAssetId.ContainsKey(key) ? activeCountByAssetId[key] : 0;
-                }
+                foreach (var entry in runtimeMap)
+                    entry.Value.PeakUsage = entry.Value.ActiveCount;
             }
         }
 
@@ -395,18 +384,29 @@ namespace WNGameBase
 
             foreach (var stat in stats)
             {
-                // 如果峰值使用量接近总容量，增加池大小
                 if (stat.peakUtilizationPercent > 90f)
                 {
-                    int additionalSize = Mathf.CeilToInt(stat.totalObjects * 0.2f); // 增加20%
+                    int additionalSize = Mathf.CeilToInt(stat.totalObjects * 0.2f);
                     PrewarmPool(stat.assetId, additionalSize);
                 }
-                // 如果峰值使用量远低于容量，记录建议
                 else if (stat.peakUtilizationPercent < 40f && stat.totalObjects > 20)
                 {
-                    int suggestedSize = Mathf.CeilToInt(stat.peakUsage * 1.5f); // 峰值的1.5倍
+                    int suggestedSize = Mathf.CeilToInt(stat.peakUsage * 1.5f);
                     Debug.Log($"Pool '{stat.assetId}' might be oversized. Current size: {stat.totalObjects}, Suggested size: {suggestedSize}");
                 }
+            }
+        }
+
+        /// <summary>
+        /// 销毁池中所有可用对象
+        /// </summary>
+        private void DestroyAvailableObjects(PoolRuntime runtime)
+        {
+            while (runtime.Available.Count > 0)
+            {
+                GameObject obj = runtime.Available.Dequeue();
+                if (obj != null)
+                    Destroy(obj);
             }
         }
     }
@@ -419,31 +419,4 @@ namespace WNGameBase
         void OnObjectSpawn();
         void OnObjectReturn();
     }
-
-    /// <summary>
-    /// 为池对象提供自动返回功能的组件
-    /// </summary>
-    //public class PooledObject : MonoBehaviour
-    //{
-    //    private ObjectPool pool;
-    //    private string poolAssetId;
-
-    //    public void SetPool(ObjectPool objectPool, string assetId)
-    //    {
-    //        pool = objectPool;
-    //        poolAssetId = assetId;
-    //    }
-
-    //    public void ReturnToPool()
-    //    {
-    //        if (pool != null)
-    //        {
-    //            pool.ReturnToPool(poolAssetId, gameObject);
-    //        }
-    //        else
-    //        {
-    //            Debug.LogWarning("Pool reference is missing. Cannot return object.", gameObject);
-    //        }
-    //    }
-    //}
 }

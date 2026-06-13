@@ -8,35 +8,35 @@ namespace UIFrame
         private Dictionary<string, GameObject> assetCache = new Dictionary<string, GameObject>();
 
         /// <summary>  
-        /// �ӻ����л�ȡ��Դ����������в����������Դ�ļ��м��ز�����  
+        /// 从缓存中获取资源，如果不存在则从资源文件中加载并缓存  
         /// </summary>  
-        /// <param name="path">��Դ·��</param>  
-        /// <returns>GameObject ��Դ</returns>  
+        /// <param name="path">资源路径</param>  
+        /// <returns>GameObject 资源</returns>  
         public T GetAssetCache<T>(string path) where T : UnityEngine.Object
         {
-            // ��黺�����Ƿ����  
+            // 检查缓存中是否存在  
             if (assetCache.TryGetValue(path, out var cachedAsset))
             {
                 return cachedAsset as T;
             }
 
-            // ����Դ�ļ��м���  
+            // 从资源文件中加载  
             T asset = Resources.Load<T>(path);
             if (asset != null)
             {
-                // ��ӵ�����  
+                // 添加到缓存  
                 assetCache[path] = asset as GameObject;
             }
             else
             {
-                Debug.LogError($"��Դδ�ҵ�: {path}");
+                Debug.LogError($"资源未找到: {path}");
             }
 
             return asset;
         }
 
         /// <summary>  
-        /// ��������е���Դ  
+        /// 清理缓存中的资源  
         /// </summary>  
         public void ClearCache()
         {

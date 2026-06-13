@@ -580,6 +580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2004965479245137978}
   - component: {fileID: 8528644766481259233}
+  - component: {fileID: 3061525612715809531}
   m_Layer: 5
   m_Name: ItemDragged
   m_TagString: Untagged
@@ -606,7 +607,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 120, y: -40}
+  m_AnchoredPosition: {x: 40, y: -120}
   m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8528644766481259233
@@ -624,6 +625,19 @@ MonoBehaviour:
   ItemSlotBg: {fileID: 7321025966162624623}
   ItemImage: {fileID: 2910227731023544324}
   ItemCount: {fileID: 7325264437314573856}
+  CanvasGroup: {fileID: 3061525612715809531}
+--- !u!225 &3061525612715809531
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3524598604310565257}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &3583512215268126636
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,6 +745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4956520553318407069}
   - component: {fileID: 8600035103275004194}
+  - component: {fileID: 6649846899383793214}
   m_Layer: 5
   m_Name: ItemSlot
   m_TagString: Untagged
@@ -775,6 +790,19 @@ MonoBehaviour:
   ItemSlotBg: {fileID: 6473790076082408952}
   ItemImage: {fileID: 2233522618509575001}
   ItemCount: {fileID: 3336493694874334738}
+  CanvasGroup: {fileID: 6649846899383793214}
+--- !u!225 &6649846899383793214
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5287189053381799310}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8847185544824914202
 GameObject:
   m_ObjectHideFlags: 0

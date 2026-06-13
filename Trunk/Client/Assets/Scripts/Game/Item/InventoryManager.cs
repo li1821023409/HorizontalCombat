@@ -253,6 +253,36 @@ namespace WNGameBase
         }
 
         /// <summary>
+        /// 从显示栏中移除道具，并同步减少背包库存
+        /// </summary>
+        /// <param name="slotIndex">要移除的槽位索引</param>
+        public void RemoveItemFromBar(int slotIndex)
+        {
+            if (LocalPawnInventoryBar == null || LocalPawnInventory == null)
+                return;
+
+            if (slotIndex < 0 || slotIndex >= LocalPawnInventoryBar.Length)
+                return;
+
+            ItemDetails itemDetails = LocalPawnInventoryBar[slotIndex];
+            if (itemDetails == null) return;
+
+            // 清空显示栏槽位
+            LocalPawnInventoryBar[slotIndex] = null;
+
+            // 从背包库存中移除全部数量
+            int currentCount = LocalPawnInventory.GetItemCount(itemDetails);
+            if (currentCount > 0)
+            {
+                LocalPawnInventory.SetItem(itemDetails, -currentCount);
+            }
+
+            // 通知 UI 更新 — 移除槽位中的道具
+            Param param = new ParamBuilder().AppendInt(slotIndex, "SlotIndex").Build();
+            UIEventManager.Instance.UIEventEmit(UIEvent.NotifyDropItemFromBar, "", param);
+        }
+
+        /// <summary>
         /// 移除Item
         /// </summary>
         public void RemoveItem(string itemId, GameObject itemObj)

@@ -41,6 +41,7 @@ namespace WNGameBase
             }
             //uiEventManager.AddUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
             UIEventManager.AddUIEventListener(UIEvent.NotifyUpDateInventoryBar, NotifyUpDateInventoryBar);
+            UIEventManager.AddUIEventListener(UIEvent.NotifyDropItemFromBar, NotifyDropItemFromBar);
         }
 
 
@@ -52,6 +53,7 @@ namespace WNGameBase
         {
             //uiEventManager.RemoveUIEventListener(UIEvent.NotifyDialogueRootPanel, NotifyDialogueRootPanel);
             UIEventManager.RemoveUIEventListener(UIEvent.NotifyUpDateInventoryBar, NotifyUpDateInventoryBar);
+            UIEventManager.RemoveUIEventListener(UIEvent.NotifyDropItemFromBar, NotifyDropItemFromBar);
         }
 
         /// <summary>
@@ -86,6 +88,15 @@ namespace WNGameBase
             int slotIndex = param.GetInt("SlotIndex");
             int count = param.GetInt("Count");
             InventoryBarPanel.UpDateInventoryBar(itemDetails, slotIndex, count);
+        }
+
+        /// <summary>
+        /// 道具从显示栏拖拽放置到地图后，更新 UI
+        /// </summary>
+        public void NotifyDropItemFromBar(Param param)
+        {
+            int slotIndex = param.GetInt("SlotIndex");
+            InventoryBarPanel.RemoveItemFromBar(slotIndex);
         }
     }
 }
