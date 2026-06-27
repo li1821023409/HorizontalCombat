@@ -64,6 +64,11 @@ namespace WNGameBase
         private readonly Dictionary<string, PoolRuntime> runtimeMap = new Dictionary<string, PoolRuntime>();
 
         /// <summary>
+        /// 池是否已完成初始化
+        /// </summary>
+        public bool IsInitialized { get; private set; } = false;
+
+        /// <summary>
         /// 添加池配置
         /// </summary>
         public Pool AddPool(string assetId, GameObject prefab, Transform poolParent = null, int initialSize = 1, int maxSize = 1)
@@ -116,6 +121,8 @@ namespace WNGameBase
 
                 InitializePool(pool);
             }
+
+            IsInitialized = true;
         }
 
         private void InitializePool(Pool pool)

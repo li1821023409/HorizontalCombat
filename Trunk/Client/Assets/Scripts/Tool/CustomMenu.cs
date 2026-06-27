@@ -9,47 +9,47 @@ namespace WNGameTool
 {
     public class CustomMenu
     {
-        // ÔÚTools²Ëµ¥ÏÂÌí¼ÓÒ»¸ö×Ô¶¨Òå²Ëµ¥Ïî
-        [MenuItem("Tools/Create ItemList")]
+        // åœ¨Toolsèœå•ä¸‹æ·»åŠ ä¸€ä¸ªè‡ªå®šä¹‰èœå•é¡¹
+        [MenuItem("Tools/åˆ›å»ºItemList")]
         private static void CreateItemList()
         {
-            // ´´½¨ SO_ItemList µÄÊµÀı
+            // åˆ›å»º SO_ItemList çš„å®ä¾‹
             SO_ItemList itemList = ScriptableObject.CreateInstance<SO_ItemList>();
 
-            // Ê¹ÓÃ±£´æÂ·¾¶¿ÉÒÔ¸ù¾İĞèÇó¶¨Òå
+            // ä½¿ç”¨ä¿å­˜è·¯å¾„å¯ä»¥æ ¹æ®éœ€æ±‚å®šä¹‰
             string path = "Assets/Scripts/Game/Item/ItemList/New ItemList.asset";
 
-            // È·±£ÎÄ¼ş¼Ğ´æÔÚ£¬Èç¹ûÃ»ÓĞ£¬Ôò´´½¨Ëü
+            // ç¡®ä¿æ–‡ä»¶å¤¹å­˜åœ¨ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™åˆ›å»ºå®ƒ
             System.IO.Directory.CreateDirectory("Assets/Scripts/Game/Item/ItemList");
 
-            // ´´½¨×Ê²ú²¢±£´æ
+            // åˆ›å»ºèµ„äº§å¹¶ä¿å­˜
             AssetDatabase.CreateAsset(itemList, path);
             AssetDatabase.SaveAssets();
 
-            // Ñ¡ÖĞ²¢¾Û½¹µ½ĞÂ´´½¨µÄSO_ItemList
+            // é€‰ä¸­å¹¶èšç„¦åˆ°æ–°åˆ›å»ºçš„SO_ItemList
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = itemList;
 
             Debug.Log("SO_ItemList created at: " + path);
         }
 
-        [MenuItem("Tools/Create InventoryDictionary")]
+        [MenuItem("Tools/åˆ›å»ºInventoryDictionary")]
         private static void CreateInventoryDictionary()
         {
-            // ´´½¨ InventoryDictionary µÄÊµÀı
+            // åˆ›å»º InventoryDictionary çš„å®ä¾‹
             InventoryDictionary inventoryDictionary = ScriptableObject.CreateInstance<InventoryDictionary>();
 
-            // Ê¹ÓÃ±£´æÂ·¾¶¿ÉÒÔ¸ù¾İĞèÇó¶¨Òå
+            // ä½¿ç”¨ä¿å­˜è·¯å¾„å¯ä»¥æ ¹æ®éœ€æ±‚å®šä¹‰
             string path = StaticInventoryData.INVENTORY_DICTIONARY_PATH + "New InventoryDictionary.asset";
 
-            // È·±£ÎÄ¼ş¼Ğ´æÔÚ£¬Èç¹ûÃ»ÓĞ£¬Ôò´´½¨Ëü
+            // ç¡®ä¿æ–‡ä»¶å¤¹å­˜åœ¨ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™åˆ›å»ºå®ƒ
             System.IO.Directory.CreateDirectory("Assets/Scripts/Game/Item/InventoryDictionary");
 
-            // ´´½¨×Ê²ú²¢±£´æ
+            // åˆ›å»ºèµ„äº§å¹¶ä¿å­˜
             AssetDatabase.CreateAsset(inventoryDictionary, path);
             AssetDatabase.SaveAssets();
 
-            // Ñ¡ÖĞ²¢¾Û½¹µ½ĞÂ´´½¨µÄInventoryDictionary
+            // é€‰ä¸­å¹¶èšç„¦åˆ°æ–°åˆ›å»ºçš„InventoryDictionary
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = inventoryDictionary;
 
@@ -58,22 +58,22 @@ namespace WNGameTool
 
         public static InventoryDictionary CreateInventoryDictionary(string inventoryDicName = "")
         {
-            // ´´½¨ InventoryDictionary µÄÊµÀı
+            // åˆ›å»º InventoryDictionary çš„å®ä¾‹
             InventoryDictionary inventoryDictionary = ScriptableObject.CreateInstance<InventoryDictionary>();
 
-            // Ê¹ÓÃ±£´æÂ·¾¶¿ÉÒÔ¸ù¾İĞèÇó¶¨Òå
+            // ä½¿ç”¨ä¿å­˜è·¯å¾„å¯ä»¥æ ¹æ®éœ€æ±‚å®šä¹‰
             string path = inventoryDicName != "" ?
                StaticInventoryData.INVENTORY_DICTIONARY_PATH + "/" + inventoryDicName + ".asset" :
                StaticInventoryData.INVENTORY_DICTIONARY_PATH + "/" + "New InventoryDictionary.asset";
 
-            // È·±£ÎÄ¼ş¼Ğ´æÔÚ£¬Èç¹ûÃ»ÓĞ£¬Ôò´´½¨Ëü
+            // ç¡®ä¿æ–‡ä»¶å¤¹å­˜åœ¨ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™åˆ›å»ºå®ƒ
             System.IO.Directory.CreateDirectory(StaticInventoryData.INVENTORY_DICTIONARY_PATH);
 
-            // ´´½¨×Ê²ú²¢±£´æ
+            // åˆ›å»ºèµ„äº§å¹¶ä¿å­˜
             AssetDatabase.CreateAsset(inventoryDictionary, path);
             AssetDatabase.SaveAssets();
 
-            // Ñ¡ÖĞ²¢¾Û½¹µ½ĞÂ´´½¨µÄInventoryDictionary
+            // é€‰ä¸­å¹¶èšç„¦åˆ°æ–°åˆ›å»ºçš„InventoryDictionary
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = inventoryDictionary;
 
@@ -82,39 +82,39 @@ namespace WNGameTool
             return inventoryDictionary;
         }
 
-        [MenuItem("Tools/CreateCsv")]
+        [MenuItem("Tools/XMLæ–‡ä»¶è½¬ä¸ºCSV")]
         private static void CreateCsv()
         {
-            // ÏÔÊ¾ÎÄ¼şÑ¡Ôñ¶Ô»°¿ò
-            string selectedFile = EditorUtility.OpenFilePanel("Ñ¡ÔñExcelÎÄ¼ş", CsvFilePath.XML_PATH, "xlsx");
+            // æ˜¾ç¤ºæ–‡ä»¶é€‰æ‹©å¯¹è¯æ¡†
+            string selectedFile = EditorUtility.OpenFilePanel("é€‰æ‹©Excelæ–‡ä»¶", CsvFilePath.XML_PATH, "xlsx");
             
-            // Èç¹ûÓÃ»§È¡ÏûÁËÑ¡Ôñ£¬Ö±½Ó·µ»Ø
+            // å¦‚æœç”¨æˆ·å–æ¶ˆäº†é€‰æ‹©ï¼Œç›´æ¥è¿”å›
             if (string.IsNullOrEmpty(selectedFile))
             {
                 return;
             }
             
-            // ½«¾ø¶ÔÂ·¾¶×ª»»ÎªÏà¶ÔÂ·¾¶
+            // å°†ç»å¯¹è·¯å¾„è½¬æ¢ä¸ºç›¸å¯¹è·¯å¾„
             string relativePath = selectedFile.Replace(Application.dataPath, "Assets");
             
             string csvFolderPath = CsvFilePath.CSV_PATH;
             
-            // È·±£CSVÎÄ¼ş¼Ğ´æÔÚ
+            // ç¡®ä¿CSVæ–‡ä»¶å¤¹å­˜åœ¨
             if (!Directory.Exists(csvFolderPath))
             {
                 Directory.CreateDirectory(csvFolderPath);
             }
             
-            // ¼ì²éÑ¡ÔñµÄÎÄ¼şÊÇ·ñ´æÔÚ
+            // æ£€æŸ¥é€‰æ‹©çš„æ–‡ä»¶æ˜¯å¦å­˜åœ¨
             if (!File.Exists(relativePath))
             {
-                Debug.LogError($"Ñ¡ÔñµÄExcelÎÄ¼ş²»´æÔÚ: {relativePath}");
+                Debug.LogError($"é€‰æ‹©çš„Excelæ–‡ä»¶ä¸å­˜åœ¨: {relativePath}");
                 return;
             }
             
             try
             {
-                // Ê¹ÓÃExcelDataReader¶ÁÈ¡ExcelÎÄ¼ş
+                // ä½¿ç”¨ExcelDataReaderè¯»å–Excelæ–‡ä»¶
                 using (var stream = File.Open(relativePath, FileMode.Open, FileAccess.Read))
                 {
                     using (var reader = ExcelReaderFactory.CreateReader(stream))
@@ -134,7 +134,7 @@ namespace WNGameTool
                                             writer.Write(",");
                                         
                                         string value = reader.GetValue(i)?.ToString() ?? "";
-                                        // ´¦Àí°üº¬¶ººÅµÄÖµ
+                                        // å¤„ç†åŒ…å«é€—å·çš„å€¼
                                         if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
                                         {
                                             value = $"\"{value.Replace("\"", "\"\"")}\"";
@@ -146,44 +146,44 @@ namespace WNGameTool
                             } while (reader.NextResult());
                         }
                         
-                        Debug.Log($"³É¹¦×ª»»: {Path.GetFileName(relativePath)} -> {csvFileName}");
+                        Debug.Log($"æˆåŠŸè½¬æ¢: {Path.GetFileName(relativePath)} -> {csvFileName}");
                     }
                 }
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"×ª»»ÎÄ¼ş {Path.GetFileName(relativePath)} Ê±³ö´í: {ex.Message}");
+                Debug.LogError($"è½¬æ¢æ–‡ä»¶ {Path.GetFileName(relativePath)} æ—¶å‡ºé”™: {ex.Message}");
             }
             
             AssetDatabase.Refresh();
-            Debug.Log("CSV×ª»»Íê³É£¡");
+            Debug.Log("CSVè½¬æ¢å®Œæˆï¼");
         }
         
-        [MenuItem("Tools/CreateCsv For All")]
+        [MenuItem("Tools/æ‰€æœ‰XMLæ–‡ä»¶è½¬ä¸ºCSV")]
         private static void CreateCsvForAll()
         {
             string xmlFolderPath = CsvFilePath.XML_PATH;
             string csvFolderPath = CsvFilePath.CSV_PATH;
             
-            // È·±£CSVÎÄ¼ş¼Ğ´æÔÚ
+            // ç¡®ä¿CSVæ–‡ä»¶å¤¹å­˜åœ¨
             if (!Directory.Exists(csvFolderPath))
             {
                 Directory.CreateDirectory(csvFolderPath);
             }
             
-            // ¼ì²éXmlÎÄ¼ş¼ĞÊÇ·ñ´æÔÚ
+            // æ£€æŸ¥Xmlæ–‡ä»¶å¤¹æ˜¯å¦å­˜åœ¨
             if (!Directory.Exists(xmlFolderPath))
             {
-                Debug.LogError($"XmlÎÄ¼ş¼Ğ²»´æÔÚ: {xmlFolderPath}");
+                Debug.LogError($"Xmlæ–‡ä»¶å¤¹ä¸å­˜åœ¨: {xmlFolderPath}");
                 return;
             }
             
-            // »ñÈ¡ËùÓĞ.xlsxÎÄ¼ş
+            // è·å–æ‰€æœ‰.xlsxæ–‡ä»¶
             string[] excelFiles = Directory.GetFiles(xmlFolderPath, "*.xlsx");
             
             if (excelFiles.Length == 0)
             {
-                Debug.LogWarning($"ÔÚ {xmlFolderPath} ÖĞÃ»ÓĞÕÒµ½.xlsxÎÄ¼ş");
+                Debug.LogWarning($"åœ¨ {xmlFolderPath} ä¸­æ²¡æœ‰æ‰¾åˆ°.xlsxæ–‡ä»¶");
                 return;
             }
             
@@ -193,7 +193,7 @@ namespace WNGameTool
             {
                 try
                 {
-                    // Ê¹ÓÃExcelDataReader¶ÁÈ¡ExcelÎÄ¼ş
+                    // ä½¿ç”¨ExcelDataReaderè¯»å–Excelæ–‡ä»¶
                     using (var stream = File.Open(excelFile, FileMode.Open, FileAccess.Read))
                     {
                         using (var reader = ExcelReaderFactory.CreateReader(stream))
@@ -213,7 +213,7 @@ namespace WNGameTool
                                                 writer.Write(",");
                                             
                                             string value = reader.GetValue(i)?.ToString() ?? "";
-                                            // ´¦Àí°üº¬¶ººÅµÄÖµ
+                                            // å¤„ç†åŒ…å«é€—å·çš„å€¼
                                             if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
                                             {
                                                 value = $"\"{value.Replace("\"", "\"\"")}\"";
@@ -226,48 +226,48 @@ namespace WNGameTool
                             }
                             
                             convertedCount++;
-                            Debug.Log($"³É¹¦×ª»»: {Path.GetFileName(excelFile)} -> {csvFileName}");
+                            Debug.Log($"æˆåŠŸè½¬æ¢: {Path.GetFileName(excelFile)} -> {csvFileName}");
                         }
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    Debug.LogError($"×ª»»ÎÄ¼ş {Path.GetFileName(excelFile)} Ê±³ö´í: {ex.Message}");
+                    Debug.LogError($"è½¬æ¢æ–‡ä»¶ {Path.GetFileName(excelFile)} æ—¶å‡ºé”™: {ex.Message}");
                 }
             }
             
-            Debug.Log($"×ª»»Íê³É£¡¹²×ª»»ÁË {convertedCount} ¸öÎÄ¼ş");
+            Debug.Log($"è½¬æ¢å®Œæˆï¼å…±è½¬æ¢äº† {convertedCount} ä¸ªæ–‡ä»¶");
             AssetDatabase.Refresh();
         }
 
-        [MenuItem("Tools/Generate FileData Classes")]
+        [MenuItem("Tools/CSVæ–‡ä»¶ç”Ÿæˆå¯¹åº”FileDataç±»")]
         private static void GenerateFileDataClasses()
         {
-            // ÏÔÊ¾ÎÄ¼şÑ¡Ôñ¶Ô»°¿ò
-            string selectedFile = EditorUtility.OpenFilePanel("Ñ¡ÔñCSVÎÄ¼ş", CsvFilePath.CSV_PATH, "csv");
+            // æ˜¾ç¤ºæ–‡ä»¶é€‰æ‹©å¯¹è¯æ¡†
+            string selectedFile = EditorUtility.OpenFilePanel("é€‰æ‹©CSVæ–‡ä»¶", CsvFilePath.CSV_PATH, "csv");
             
-            // Èç¹ûÓÃ»§È¡ÏûÁËÑ¡Ôñ£¬Ö±½Ó·µ»Ø
+            // å¦‚æœç”¨æˆ·å–æ¶ˆäº†é€‰æ‹©ï¼Œç›´æ¥è¿”å›
             if (string.IsNullOrEmpty(selectedFile))
             {
                 return;
             }
             
-            // ½«¾ø¶ÔÂ·¾¶×ª»»ÎªÏà¶ÔÂ·¾¶
+            // å°†ç»å¯¹è·¯å¾„è½¬æ¢ä¸ºç›¸å¯¹è·¯å¾„
             string relativePath = selectedFile.Replace(Application.dataPath, "Assets");
             
             string fileDataFolderPath = CsvFilePath.FILE_DATA_PATH;
             
-            // È·±£FileDataÎÄ¼ş¼Ğ´æÔÚ
+            // ç¡®ä¿FileDataæ–‡ä»¶å¤¹å­˜åœ¨
             if (!Directory.Exists(fileDataFolderPath))
             {
                 Directory.CreateDirectory(fileDataFolderPath);
                 AssetDatabase.Refresh();
             }
             
-            // ¼ì²éÑ¡ÔñµÄÎÄ¼şÊÇ·ñ´æÔÚ
+            // æ£€æŸ¥é€‰æ‹©çš„æ–‡ä»¶æ˜¯å¦å­˜åœ¨
             if (!File.Exists(relativePath))
             {
-                Debug.LogError($"Ñ¡ÔñµÄCSVÎÄ¼ş²»´æÔÚ: {relativePath}");
+                Debug.LogError($"é€‰æ‹©çš„CSVæ–‡ä»¶ä¸å­˜åœ¨: {relativePath}");
                 return;
             }
             
@@ -277,73 +277,73 @@ namespace WNGameTool
                 string className = fileName + "Data";
                 string filePath = Path.Combine(fileDataFolderPath, className + ".cs");
                 
-                // ¶ÁÈ¡CSVÎÄ¼ş»ñÈ¡ÁĞÃû
+                // è¯»å–CSVæ–‡ä»¶è·å–åˆ—å
                 string[] columnNames = GetColumnNamesFromCsv(relativePath);
                 
                 if (columnNames == null || columnNames.Length <= 0)
                 {
-                    Debug.LogWarning($"CSVÎÄ¼ş {fileName} ÁĞÊı²»×ã£¬Ìø¹ıÉú³É, ÁĞÊıÎª£º" + columnNames.Length);
+                    Debug.LogWarning($"CSVæ–‡ä»¶ {fileName} åˆ—æ•°ä¸è¶³ï¼Œè·³è¿‡ç”Ÿæˆ, åˆ—æ•°ä¸ºï¼š" + columnNames.Length);
                     return;
                 }
                 
-                // ¼ì²éÎÄ¼şÊÇ·ñÒÑ´æÔÚ
+                // æ£€æŸ¥æ–‡ä»¶æ˜¯å¦å·²å­˜åœ¨
                 bool fileExists = File.Exists(filePath);
                 
                 if (fileExists)
                 {
-                    // ¼ì²éÊÇ·ñĞèÒª¸üĞÂ
+                    // æ£€æŸ¥æ˜¯å¦éœ€è¦æ›´æ–°
                     if (NeedUpdateFileDataClass(filePath, columnNames))
                     {
                         UpdateFileDataClass(filePath, className, columnNames);
-                        Debug.Log($"¸üĞÂFileDataÀà: {className}");
+                        Debug.Log($"æ›´æ–°FileDataç±»: {className}");
                     }
                     else
                     {
-                        Debug.Log($"FileDataÀàÒÑÊÇ×îĞÂ: {className}");
+                        Debug.Log($"FileDataç±»å·²æ˜¯æœ€æ–°: {className}");
                     }
                 }
                 else
                 {
-                    // Éú³ÉĞÂµÄFileDataÀà
+                    // ç”Ÿæˆæ–°çš„FileDataç±»
                     GenerateNewFileDataClass(filePath, className, columnNames);
-                    Debug.Log($"Éú³ÉFileDataÀà: {className}");
+                    Debug.Log($"ç”ŸæˆFileDataç±»: {className}");
                 }
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"´¦ÀíCSVÎÄ¼ş {Path.GetFileName(relativePath)} Ê±³ö´í: {ex.Message}");
+                Debug.LogError($"å¤„ç†CSVæ–‡ä»¶ {Path.GetFileName(relativePath)} æ—¶å‡ºé”™: {ex.Message}");
             }
             
             AssetDatabase.Refresh();
-            Debug.Log($"FileDataÀàÉú³ÉÍê³É£¡");
+            Debug.Log($"FileDataç±»ç”Ÿæˆå®Œæˆï¼");
         }
         
-        [MenuItem("Tools/Generate FileData Classes For All")]
+        [MenuItem("Tools/æ‰€æœ‰CSVæ–‡ä»¶ç”Ÿæˆå¯¹åº”FileDataç±»")]
         private static void GenerateFileDataClassesForAll()
         {
             string csvFolderPath = CsvFilePath.CSV_PATH;
             string fileDataFolderPath = CsvFilePath.FILE_DATA_PATH;
             
-            // È·±£FileDataÎÄ¼ş¼Ğ´æÔÚ
+            // ç¡®ä¿FileDataæ–‡ä»¶å¤¹å­˜åœ¨
             if (!Directory.Exists(fileDataFolderPath))
             {
                 Directory.CreateDirectory(fileDataFolderPath);
                 AssetDatabase.Refresh();
             }
             
-            // ¼ì²éCSVÎÄ¼ş¼ĞÊÇ·ñ´æÔÚ
+            // æ£€æŸ¥CSVæ–‡ä»¶å¤¹æ˜¯å¦å­˜åœ¨
             if (!Directory.Exists(csvFolderPath))
             {
-                Debug.LogError($"CSVÎÄ¼ş¼Ğ²»´æÔÚ: {csvFolderPath}");
+                Debug.LogError($"CSVæ–‡ä»¶å¤¹ä¸å­˜åœ¨: {csvFolderPath}");
                 return;
             }
             
-            // »ñÈ¡ËùÓĞ.csvÎÄ¼ş
+            // è·å–æ‰€æœ‰.csvæ–‡ä»¶
             string[] csvFiles = Directory.GetFiles(csvFolderPath, "*.csv");
             
             if (csvFiles.Length == 0)
             {
-                Debug.LogWarning($"ÔÚ {csvFolderPath} ÖĞÃ»ÓĞÕÒµ½.csvÎÄ¼ş");
+                Debug.LogWarning($"åœ¨ {csvFolderPath} ä¸­æ²¡æœ‰æ‰¾åˆ°.csvæ–‡ä»¶");
                 return;
             }
             
@@ -358,48 +358,48 @@ namespace WNGameTool
                     string className = fileName + "Data";
                     string filePath = Path.Combine(fileDataFolderPath, className + ".cs");
                     
-                    // ¶ÁÈ¡CSVÎÄ¼ş»ñÈ¡ÁĞÃû
+                    // è¯»å–CSVæ–‡ä»¶è·å–åˆ—å
                     string[] columnNames = GetColumnNamesFromCsv(csvFile);
                     
                     if (columnNames == null || columnNames.Length <= 0)
                     {
-                        Debug.LogWarning($"CSVÎÄ¼ş {fileName} ÁĞÊı²»×ã£¬Ìø¹ıÉú³É");
+                        Debug.LogWarning($"CSVæ–‡ä»¶ {fileName} åˆ—æ•°ä¸è¶³ï¼Œè·³è¿‡ç”Ÿæˆ");
                         continue;
                     }
                     
-                    // ¼ì²éÎÄ¼şÊÇ·ñÒÑ´æÔÚ
+                    // æ£€æŸ¥æ–‡ä»¶æ˜¯å¦å·²å­˜åœ¨
                     bool fileExists = File.Exists(filePath);
                     
                     if (fileExists)
                     {
-                        // ¼ì²éÊÇ·ñĞèÒª¸üĞÂ
+                        // æ£€æŸ¥æ˜¯å¦éœ€è¦æ›´æ–°
                         if (NeedUpdateFileDataClass(filePath, columnNames))
                         {
                             UpdateFileDataClass(filePath, className, columnNames);
                             updatedCount++;
-                            Debug.Log($"¸üĞÂFileDataÀà: {className}");
+                            Debug.Log($"æ›´æ–°FileDataç±»: {className}");
                         }
                         else
                         {
-                            Debug.Log($"FileDataÀàÒÑÊÇ×îĞÂ: {className}");
+                            Debug.Log($"FileDataç±»å·²æ˜¯æœ€æ–°: {className}");
                         }
                     }
                     else
                     {
-                        // Éú³ÉĞÂµÄFileDataÀà
+                        // ç”Ÿæˆæ–°çš„FileDataç±»
                         GenerateNewFileDataClass(filePath, className, columnNames);
                         generatedCount++;
-                        Debug.Log($"Éú³ÉFileDataÀà: {className}");
+                        Debug.Log($"ç”ŸæˆFileDataç±»: {className}");
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    Debug.LogError($"´¦ÀíCSVÎÄ¼ş {Path.GetFileName(csvFile)} Ê±³ö´í: {ex.Message}");
+                    Debug.LogError($"å¤„ç†CSVæ–‡ä»¶ {Path.GetFileName(csvFile)} æ—¶å‡ºé”™: {ex.Message}");
                 }
             }
             
             AssetDatabase.Refresh();
-            Debug.Log($"FileDataÀàÉú³ÉÍê³É£¡ĞÂÉú³É: {generatedCount} ¸ö£¬¸üĞÂ: {updatedCount} ¸ö");
+            Debug.Log($"FileDataç±»ç”Ÿæˆå®Œæˆï¼æ–°ç”Ÿæˆ: {generatedCount} ä¸ªï¼Œæ›´æ–°: {updatedCount} ä¸ª");
         }
         
         private static string[] GetColumnNamesFromCsv(string csvFilePath)
@@ -408,9 +408,9 @@ namespace WNGameTool
             {
                 using (StreamReader reader = new StreamReader(csvFilePath))
                 {
-                    // ¶ÁÈ¡µÚÒ»ĞĞ£¨ÖĞÎÄÁĞÃû£©
+                    // è¯»å–ç¬¬ä¸€è¡Œï¼ˆä¸­æ–‡åˆ—åï¼‰
                     string chineseLine = reader.ReadLine();
-                    // ¶ÁÈ¡µÚ¶şĞĞ£¨Ó¢ÎÄÁĞÃû£©
+                    // è¯»å–ç¬¬äºŒè¡Œï¼ˆè‹±æ–‡åˆ—åï¼‰
                     string englishLine = reader.ReadLine();
                     
                     if (string.IsNullOrEmpty(englishLine))
@@ -420,7 +420,7 @@ namespace WNGameTool
                     
                     string[] columns = englishLine.Split(',');
                     
-                    // Ìø¹ıÇ°Á½ÁĞ£¨idºÍtype£©£¬·µ»ØÆäËûÁĞÃû
+                    // è·³è¿‡å‰ä¸¤åˆ—ï¼ˆidå’Œtypeï¼‰ï¼Œè¿”å›å…¶ä»–åˆ—å
                     if (columns.Length > 2)
                     {
                         string[] result = new string[columns.Length - 2];
@@ -436,7 +436,7 @@ namespace WNGameTool
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"¶ÁÈ¡CSVÎÄ¼şÁĞÃûÊ±³ö´í: {ex.Message}");
+                Debug.LogError($"è¯»å–CSVæ–‡ä»¶åˆ—åæ—¶å‡ºé”™: {ex.Message}");
                 return null;
             }
         }
@@ -447,7 +447,7 @@ namespace WNGameTool
             {
                 string content = File.ReadAllText(filePath);
                 
-                // ¼ì²éÏÖÓĞµÄ×Ö¶Î
+                // æ£€æŸ¥ç°æœ‰çš„å­—æ®µ
                 foreach (string columnName in newColumnNames)
                 {
                     string fieldName = ConvertToFieldName(columnName);
@@ -471,13 +471,13 @@ namespace WNGameTool
             {
                 string content = File.ReadAllText(filePath);
                 
-                // Éú³ÉĞÂµÄ×Ö¶Î¶¨Òå
+                // ç”Ÿæˆæ–°çš„å­—æ®µå®šä¹‰
                 string newFields = GenerateFieldsCode(columnNames);
                 
-                // Éú³ÉĞÂµÄInit·½·¨
+                // ç”Ÿæˆæ–°çš„Initæ–¹æ³•
                 string newInitMethod = GenerateInitMethod(columnNames);
                 
-                // Ê¹ÓÃÕıÔò±í´ïÊ½Ìæ»»×Ö¶ÎºÍInit·½·¨
+                // ä½¿ç”¨æ­£åˆ™è¡¨è¾¾å¼æ›¿æ¢å­—æ®µå’ŒInitæ–¹æ³•
                 string pattern = @"public class " + className + @" : FileData\s*\{[^}]*\}";
                 string replacement = $"public class {className} : FileData\n{{\n{newFields}\n\n{newInitMethod}\n}}";
                 
@@ -487,7 +487,7 @@ namespace WNGameTool
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"¸üĞÂFileDataÀàÊ±³ö´í: {ex.Message}");
+                Debug.LogError($"æ›´æ–°FileDataç±»æ—¶å‡ºé”™: {ex.Message}");
             }
         }
         
@@ -526,18 +526,17 @@ namespace WNGameTool
             
             return sb.ToString().TrimEnd();
         }
-        
 
-        
+
         private static string ConvertToFieldName(string columnName)
         {
-            // ½«ÁĞÃû×ª»»ÎªºÏ·¨µÄC#×Ö¶ÎÃû
+            // å°†åˆ—åè½¬æ¢ä¸ºåˆæ³•çš„C#å­—æ®µå
             string fieldName = columnName.ToLower();
             
-            // ÒÆ³ıÌØÊâ×Ö·û£¬Ö»±£Áô×ÖÄ¸Êı×Ö
+            // ç§»é™¤ç‰¹æ®Šå­—ç¬¦ï¼Œåªä¿ç•™å­—æ¯æ•°å­—
             fieldName = Regex.Replace(fieldName, @"[^a-zA-Z0-9]", " ");
             
-            // ½«Ã¿¸öµ¥´ÊÊ××ÖÄ¸´óĞ´
+            // å°†æ¯ä¸ªå•è¯é¦–å­—æ¯å¤§å†™
             string[] words = fieldName.Split(' ');
             for (int i = 0; i < words.Length; i++)
             {
@@ -547,7 +546,7 @@ namespace WNGameTool
                 }
             }
             
-            // ½«µÚÒ»¸ö×ÖÄ¸Ğ¡Ğ´£¨C#×Ö¶ÎÃüÃû¹æ·¶£©
+            // å°†ç¬¬ä¸€ä¸ªå­—æ¯å°å†™ï¼ˆC#å­—æ®µå‘½åè§„èŒƒï¼‰
             string result = string.Join("", words);
             if (result.Length > 0)
             {
@@ -557,20 +556,20 @@ namespace WNGameTool
             return result;
         }
 
-        // ÔÚTools²Ëµ¥ÏÂÌí¼ÓÒ»¸ö·Ö¸îÏß
+        // åœ¨Toolsèœå•ä¸‹æ·»åŠ ä¸€ä¸ªåˆ†å‰²çº¿
         [MenuItem("Tools/Settings")]
         private static void Settings()
         {
-            // ÓÃÓÚÉèÖÃµÄ¹¤¾ß£¬¿ÉÒÔ°üº¬¸ü¶à¹¦ÄÜ
+            // ç”¨äºè®¾ç½®çš„å·¥å…·ï¼Œå¯ä»¥åŒ…å«æ›´å¤šåŠŸèƒ½
             Debug.Log("Settings Tool Clicked!");
         }
 
-        // Ê¹ÓÃValidate·½·¨À´¿ØÖÆ²Ëµ¥ÏîµÄÆôÓÃ×´Ì¬
+        // ä½¿ç”¨Validateæ–¹æ³•æ¥æ§åˆ¶èœå•é¡¹çš„å¯ç”¨çŠ¶æ€
         [MenuItem("Tools/Another Tool", true)]
         private static bool ValidateAnotherTool()
         {
-            // ·µ»ØtrueÔò²Ëµ¥Ïî¿ÉÓÃ£¬·µ»ØfalseÔò½ûÓÃ
-            return Application.isPlaying; // ÀıÈç£¬Ö»ÔÚ²¥·ÅÄ£Ê½ÏÂÏÔÊ¾¸Ã²Ëµ¥Ïî
+            // è¿”å›trueåˆ™èœå•é¡¹å¯ç”¨ï¼Œè¿”å›falseåˆ™ç¦ç”¨
+            return Application.isPlaying; // ä¾‹å¦‚ï¼Œåªåœ¨æ’­æ”¾æ¨¡å¼ä¸‹æ˜¾ç¤ºè¯¥èœå•é¡¹
         }
     }
 }

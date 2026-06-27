@@ -154,7 +154,7 @@ namespace WNGameBase
         /// <param name="item">添加的item</param>
         public void AddItem(Item item, int reviseCount = 1)
         {
-            if (LocalPawnInventory == null)
+            if (LocalPawnInventory == null || item == null)
                 return;
 
             // TODO：添加item的时候应该先查询后添加，这里需要注意一下
@@ -207,12 +207,70 @@ namespace WNGameBase
         }
 
         /// <summary>
+        /// 添加Item
+        /// </summary>
+        /// <param name="item">添加的item</param>
+        public void AddItem(string itemID, int reviseCount = 1)
+        {
+            if (LocalPawnInventory == null || string.IsNullOrEmpty(itemID))
+                return;
+
+            // TODO：添加item的时候应该先查询后添加，这里需要注意一下
+            // 先查询背包中是否包含该道具，不包含则创建一个
+            m_PreItem = LocalPawnInventory.ContainsItemDetails(itemID);
+
+            if (m_PreItem == null)
+            {
+                m_PreItem = GameBuilder.ContainsItemDetails(itemID);
+            }
+
+            // 添加道具
+            if (LocalPawnInventory.Inventory.ContainsKey(m_PreItem))
+            {
+                // 获取当前数量并增加新数量
+                LocalPawnInventory.SetItem(m_PreItem, reviseCount);
+            }
+            else if (LocalPawnInventory.Inventory.Count < StaticInventoryData.INVENTORY_MAX_CARRYING_CAPACITY)
+            {
+                LocalPawnInventory.SetItem(m_PreItem, reviseCount);
+            }
+            else
+            {
+                Debug.LogError("[aoandouli] InventoryManager.AddItem localPawnInventory.Count >= InventoryMaxCarryingCapacity.");
+            }
+
+#if UNITY_EDITOR
+            if (LocalPawnInventoryBar == null)
+                return;
+
+            // TODO：仅测试，不是最终效果
+            // 这里用来测试道具栏添加功能，将道具加入显示栏固定槽位并通知UI更新
+            // 查找道具是否已在显示栏中，否则分配到第一个空闲槽位
+            int slotIndex = System.Array.FindIndex(LocalPawnInventoryBar, x => x != null && x.id == m_PreItem.id);
+            if (slotIndex == -1)
+            {
+                slotIndex = System.Array.FindIndex(LocalPawnInventoryBar, x => x == null);
+            }
+            if (slotIndex >= 0 && slotIndex < StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY)
+            {
+                LocalPawnInventoryBar[slotIndex] = m_PreItem;
+                // 数量统一从 LocalPawnInventory 中获取
+                int count = LocalPawnInventory.GetItemCount(m_PreItem);
+                Param param = new ParamBuilder().AppendObject(m_PreItem, "ItemDetails").AppendInt(slotIndex, "SlotIndex").AppendInt(count, "Count").Build();
+                UIEventManager.Instance.UIEventEmit(UIEvent.NotifyUpDateInventoryBar, "", param);
+            }
+#endif
+
+            m_PreItem = null;
+        }
+
+        /// <summary>
         /// 切换当前使用武器
         /// </summary>
         /// <param name="ItemId"></param>
         public void SwitchItem(Item item)
         {
-            if (LocalPawnInventory == null)
+            if (LocalPawnInventory == null || item == null)
                 return;
 
             m_NextItem = LocalPawnInventory.ContainsItemDetails(item.itemDetails.id);
@@ -241,6 +299,54 @@ namespace WNGameBase
             else
             {
                 Debug.LogError("[aoandouli] InventoryManager.SwitchItem Inventory does not include : " + item.itemDetails.id);
+            }
+        }
+
+        /// <summary>
+        /// 切换当前使用武器
+        /// </summary>
+        /// <param name="ItemId"></param>
+        public void SwitchItem(string itemID)
+        {
+            if (LocalPawnInventory == null || string.IsNullOrEmpty(itemID))
+                return;
+
+            m_NextItem = LocalPawnInventory.ContainsItemDetails(itemID);
+            if (m_NextItem == null)
+            {
+                // 如果切换的时候发现背包为空，则先添加再切换
+                m_CurrentItemGameObject = GameBuilder.SpawnItem(itemID, Vector3.zero, Quaternion.identity, ItemParentTransform);
+
+                var m_Item = m_CurrentItemGameObject.GetComponent<Item>();
+                if (m_Item == null)
+                {
+                    m_NextItem = GameBuilder.ContainsItemDetails(itemID);
+                    AddItem(itemID);
+                }
+                else
+                {
+                    m_NextItem = m_Item.itemDetails;
+                    AddItem(m_Item);
+                }
+            }
+            if (m_NextItem != null)
+            {
+                if (ItemParentTransform != null && (CurrentItem == null || itemID != CurrentItem.id))
+                {
+                    // 如果添加为当前使用道具，则需要先移除手里的（如果有），再创建该对象
+                    if (CurrentItem != null && m_CurrentItemGameObject != null)
+                    {
+                        RemoveItem(itemID, m_CurrentItemGameObject);
+                    }
+
+                    SetItemData(m_CurrentItemGameObject);
+                    m_CurrentItem = m_NextItem;
+                    m_NextItem = null;
+                }
+            }
+            else
+            {
+                Debug.LogError("[aoandouli] InventoryManager.SwitchItem Inventory does not include : " + itemID);
             }
         }
 

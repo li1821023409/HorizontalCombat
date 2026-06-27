@@ -144,10 +144,7 @@ namespace WNGameBase
             }
 
             // TODO : 这里默认的Item的Id = 1001，后续做成配置方式，需要移除并重新创建Item
-            Item item = new Item();
-            item.Init(GameBuilder.ContainsItemDetails(GameBuilder.DefaultItemID));
-            InventoryManager.AddItem(item);
-            InventoryManager.SwitchItem(item);
+            InventoryManager.SwitchItem(GameBuilder.DefaultItemID);
         }
 
         public virtual void SpawnPawn(string assetID, Vector3 location, Quaternion rotate)

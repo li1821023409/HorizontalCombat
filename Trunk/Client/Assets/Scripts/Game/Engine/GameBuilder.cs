@@ -1,7 +1,9 @@
 using FileIO;
+using System;
 using System.Collections.Generic;
 using UIFrame;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using WNGameBase;
 
 namespace WNEngine
@@ -38,11 +40,20 @@ namespace WNEngine
         public SceneLoader SceneLoader;
 
         /// <summary>
+        /// 预加载进度回调，参数为 0.0 ~ 1.0
+        /// </summary>
+        public event Action<float> OnPreloadProgress;
+
+        /// <summary>
+        /// 预加载完成回调
+        /// </summary>
+        public event Action OnPreloadCompleted;
+
+        /// <summary>
         /// 搭建Scene场景，后续完善
         /// </summary>
         public virtual void BuildGameScene()
         {
-            //return ReflectUtility.CreateInstance(UISceneType) as UIScene;
             BuildWNGame(SceneLoader.BuilderWNGame());
         }
 
@@ -75,31 +86,32 @@ namespace WNEngine
 
         /// <summary>
         /// 将Pawn的数据存成字典，方便后续读取
-        /// TODO:这里应该是异步加载的时候就要处理的，但是现在还没开始做异步加载，先在GameInfo里面处理
         /// </summary>
         protected Dictionary<string, PawnInfoData> m_PawnInfo = new Dictionary<string, PawnInfoData>();
         protected string m_PawnInfoName = "PawnInfo";
 
         /// <summary>
         /// 将Effect的数据存成字典，方便后续读取
-        /// TODO:这里应该是异步加载的时候就要处理的，但是现在还没开始做异步加载，先在GameInfo里面处理 
         /// </summary>
         protected Dictionary<string, EffectInfoData> m_EffectInfo = new Dictionary<string, EffectInfoData>();
         protected string m_EffectInfoName = "EffectInfo";
 
         /// <summary>
         /// 将AssetId文件的数据存成字典，方便后续读取
-        /// TODO:这里应该是异步加载的时候就要处理的，但是现在还没开始做异步加载，先在GameInfo里面处理
         /// </summary>
         protected Dictionary<string, AssetIDData> m_AssetId = new Dictionary<string, AssetIDData>();
         protected string m_AssetIdName = "AssetId";
 
         /// <summary>
-        /// 将AssetId文件的数据存成字典，方便后续读取
-        /// TODO:这里应该是异步加载的时候就要处理的，但是现在还没开始做异步加载，先在GameInfo里面处理
+        /// 将ItemInfo文件的数据存成字典，方便后续读取
         /// </summary>
         protected Dictionary<string, ItemInfoData> m_ItemInfo = new Dictionary<string, ItemInfoData>();
         protected string m_ItemInfoName = "ItemInfo";
+
+        /// <summary>
+        /// 标记预加载是否已完成
+        /// </summary>
+        public bool IsPreloadCompleted { get; private set; } = false;
 
         /*下面的是PersistentScene一直存在的场景中防止池缓存的层级*/
         /// <summary>
@@ -155,141 +167,218 @@ namespace WNEngine
         {
             SceneLoader = SceneLoader.Instance;
             ObjectPool = ObjectPool.Instance;
-            // 确保不会根据场景切换而销毁
             DontDestroyOnLoad(this);
         }
 
-        #region 加载场景
-        // TODO：先跳转场景，加载对应场景的TilemapGrid，然后数据初始化获取对应参数，这里先不动态加载TilemapGrid了，直接将TilemapGrid放在场景中，加载场景完成后直接初始化获取对应TilemapGrid层
-        #endregion
+        #region 预加载系统（游戏启动后、PersistentScene中调用）
 
-        #region 数据初始化
         /// <summary>
-        /// 这里是进入场景需要提前加载的csv文件数据
+        /// 在指定场景中创建Pool根节点和所有层级容器
+        /// 创建的对象会通过 MoveGameObjectToScene 归入 targetScene
         /// </summary>
-        public void LoadAssetIDData()
+        public void InitPoolHierarchyInScene(Scene targetScene)
         {
-            // TODO:进入游戏的时候加载所有资源感觉太慢了，以后看下要不要提前加载，开始游戏的时候直接用 
+            Scene previousActive = SceneManager.GetActiveScene();
 
-            InitPawnLevel();
+            // 切换到目标场景以便 new GameObject 直接创建在该场景中
+            SceneManager.SetActiveScene(targetScene);
 
-            m_AssetId = FileManager.Instance.ReadCSVFilesToDictionary<AssetIDData>(m_AssetIdName);
-            m_PawnInfo = FileManager.Instance.ReadCSVFilesToDictionary<PawnInfoData>(m_PawnInfoName);
-            m_EffectInfo = FileManager.Instance.ReadCSVFilesToDictionary<EffectInfoData>(m_EffectInfoName);
-            m_ItemInfo = FileManager.Instance.ReadCSVFilesToDictionary<ItemInfoData>(m_ItemInfoName);
-
-            foreach (string key in m_AssetId.Keys)
-            {
-                if (int.TryParse(key, out int assetId) && m_AssetId.ContainsKey(key))
-                {
-                    AssetIDData data = m_AssetId[key];
-                    GameObject prefab = Resources.Load<GameObject>(data.assetPath);
-                    if (prefab == null)
-                    {
-                        continue;
-                    }
-                    ObjectPool.AddPool(data.id, prefab, GetPoolLevel(int.Parse(data.type)), int.Parse(data.initialSize), int.Parse(data.maxSize));
-                }
-                else
-                {
-                    Debug.LogError($"AssetIDData with assetId '{key}' doesn't exist.");
-                }
-            }
-            ObjectPool.InitializePools();
-
-        }
-
-        private void InitPawnLevel()
-        {
             if (PoolRoot == null)
             {
-                GameObject obj = new GameObject("PoolRoot");
-                PoolRoot = obj.transform;
+                PoolRoot = new GameObject("PoolRoot").transform;
             }
-            InstancesPoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.Instances), (int)AssetTypeEnum.Instances);
-            BoolCanPlaceFumiturePoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolCanPlaceFumiture), (int)AssetTypeEnum.BoolCanPlaceFumiture);
-            BoolCanFropItemPoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolCanFropItemPool), (int)AssetTypeEnum.BoolCanFropItemPool);
-            BoolDiggablePoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolDiggable), (int)AssetTypeEnum.BoolDiggable);
-            BoolPathPoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolPath), (int)AssetTypeEnum.BoolPath);
-            BoolNpcObstaciePoolLevel = CreatePoolLevel(GetPoolLevelName(AssetTypeEnum.BoolNpcObstacie), (int)AssetTypeEnum.BoolNpcObstacie);
+
+            InstancesPoolLevel = CreatePoolLevelInScene("InstancesPoolLevel", targetScene);
+            BoolCanPlaceFumiturePoolLevel = CreatePoolLevelInScene("BoolCanPlaceFumiturePoolLevel", targetScene);
+            BoolCanFropItemPoolLevel = CreatePoolLevelInScene("BoolCanFropItemPoolLevel", targetScene);
+            BoolDiggablePoolLevel = CreatePoolLevelInScene("BoolDiggablePoolLevel", targetScene);
+            BoolPathPoolLevel = CreatePoolLevelInScene("BoolPathPoolLevel", targetScene);
+            BoolNpcObstaciePoolLevel = CreatePoolLevelInScene("BoolNpcObstaciePoolLevel", targetScene);
+
+            // 恢复之前的激活场景
+            SceneManager.SetActiveScene(previousActive);
+
+            Debug.Log($"[GameBuilder] Pool层级已在场景'{targetScene.name}'中创建完成");
         }
 
         /// <summary>
-        /// 创建可攻击对象层级，对Pawn进行分层存放
+        /// 在指定场景中创建池层级容器，并挂接到PoolRoot
         /// </summary>
-        private Transform CreatePoolLevel(string name, int level)
+        private Transform CreatePoolLevelInScene(string name, Scene scene)
         {
             GameObject obj = new GameObject(name);
+            SceneManager.MoveGameObjectToScene(obj, scene);
             if (PoolRoot != null)
             {
                 obj.transform.SetParent(PoolRoot.transform);
                 return obj.transform;
             }
-            else
-            {
-                throw new UIFrameException("pawnToot不存在");
-            }
+            throw new UIFrameException("PoolRoot不存在，请先调用InitPoolHierarchyInScene");
         }
 
         /// <summary>
-        /// 获取池对象层级
+        /// 读取CSV配置并创建对象池（使用已建立的PoolHierarchy）
         /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        private string GetPoolLevelName(AssetTypeEnum level)
+        public void LoadAndSetupPools()
+        {
+            IsPreloadCompleted = false;
+            ReportProgress(0f);
+
+            // 读取所有CSV配置数据（0% → 50%）
+            LoadCsvData();
+
+            // 为每个AssetId创建对象池（50% → 90%）
+            SetupPoolsFromAssetId();
+
+            // 完成（90% → 100%）
+            ReportProgress(1f);
+            IsPreloadCompleted = true;
+            OnPreloadCompleted?.Invoke();
+            Debug.Log("[GameBuilder] 预加载完成");
+        }
+
+        /// <summary>
+        /// 读取所有CSV配置数据到内存字典
+        /// </summary>
+        private void LoadCsvData()
+        {
+            m_AssetId = FileManager.Instance.ReadCSVFilesToDictionary<AssetIDData>(m_AssetIdName);
+            ReportProgress(0.2f);
+
+            m_PawnInfo = FileManager.Instance.ReadCSVFilesToDictionary<PawnInfoData>(m_PawnInfoName);
+            ReportProgress(0.3f);
+
+            m_EffectInfo = FileManager.Instance.ReadCSVFilesToDictionary<EffectInfoData>(m_EffectInfoName);
+            ReportProgress(0.4f);
+
+            m_ItemInfo = FileManager.Instance.ReadCSVFilesToDictionary<ItemInfoData>(m_ItemInfoName);
+            ReportProgress(0.5f);
+        }
+
+        /// <summary>
+        /// 根据AssetID配置创建并预热对象池
+        /// </summary>
+        private void SetupPoolsFromAssetId()
+        {
+            if (m_AssetId == null || m_AssetId.Count == 0)
+            {
+                Debug.LogWarning("[GameBuilder] AssetID数据为空，跳过池创建");
+                ReportProgress(0.9f);
+                return;
+            }
+
+            int total = m_AssetId.Count;
+            int processed = 0;
+
+            foreach (var entry in m_AssetId)
+            {
+                AssetIDData data = entry.Value;
+
+                // 加载预制体
+                GameObject prefab = Resources.Load<GameObject>(data.assetPath);
+                if (prefab == null)
+                {
+                    Debug.LogWarning($"[GameBuilder] 资源未找到，跳过: {data.assetPath}");
+                    processed++;
+                    continue;
+                }
+
+                // 确定层级
+                int assetType;
+                int.TryParse(data.type, out assetType);
+                Transform poolParent = GetPoolLevelByType(assetType);
+
+                // 解析尺寸
+                int initialSize;
+                int.TryParse(data.initialSize, out initialSize);
+                int maxSize;
+                int.TryParse(data.maxSize, out maxSize);
+
+                // 添加池配置（不重复添加）
+                ObjectPool.AddPool(data.id, prefab, poolParent, initialSize, maxSize);
+                processed++;
+
+                // 进度：50% → 90% 之间按已处理比例推进
+                ReportProgress(0.5f + 0.4f * processed / total);
+            }
+
+            ObjectPool.InitializePools();
+        }
+
+        /// <summary>
+        /// 报告预加载进度
+        /// </summary>
+        private void ReportProgress(float progress)
+        {
+            OnPreloadProgress?.Invoke(Mathf.Clamp01(progress));
+        }
+
+        /// <summary>
+        /// 获取池层级（使用InitPoolHierarchy创建的层级节点）
+        /// </summary>
+        private Transform GetPoolLevelByType(int level)
         {
             switch (level)
             {
-                case AssetTypeEnum.Instances:
-                    return "InstancesPoolLevel";
-                case AssetTypeEnum.BoolCanPlaceFumiture:
-                    return "BoolCanPlaceFumiturePoolLevel";
-                case AssetTypeEnum.BoolCanFropItemPool:
-                    return "BoolCanFropItemPoolLevel";
-                case AssetTypeEnum.BoolDiggable:
-                    return "BoolDiggablePoolLevel";
-                case AssetTypeEnum.BoolPath:
-                    return "BoolPathPoolLevel";
-                case AssetTypeEnum.BoolNpcObstacie:
-                    return "BoolNpcObstaciePoolLevel";
-                default:
-                    return null;
+                case 1: return InstancesPoolLevel;
+                case 2: return BoolCanPlaceFumiturePoolLevel;
+                case 3: return BoolCanFropItemPoolLevel;
+                case 4: return BoolDiggablePoolLevel;
+                case 5: return BoolPathPoolLevel;
+                case 6: return BoolNpcObstaciePoolLevel;
+                default: return null;
             }
         }
 
+        #endregion
+
+        #region 加载场景
+        #endregion
+
+        #region 数据初始化
         /// <summary>
-        /// 获取池对象层级
+        /// 场景加载完成后初始化数据
+        /// 仅在预加载未完成时读取CSV；已预加载则跳过CSV读取，只初始化池
         /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        private Transform GetPoolLevel(int level)
+        public void LoadAssetIDData()
         {
-            if (TilemapGrid == null)
-                return null;
-            switch (level)
+            if (IsPreloadCompleted)
             {
-                case 1:
-                    return InstancesPoolLevel;
-                case 2:
-                    return BoolCanPlaceFumiturePoolLevel;
-                case 3:
-                    return BoolCanFropItemPoolLevel;
-                case 4:
-                    return BoolDiggablePoolLevel;
-                case 5:
-                    return BoolPathPoolLevel;
-                case 6:
-                    return BoolNpcObstaciePoolLevel;
-                default:
-                    return null;
+                if (!ObjectPool.IsInitialized)
+                {
+                    ObjectPool.InitializePools();
+                }
+                return;
+            }
+
+            // 未经过预加载时的后备初始化
+            m_AssetId = FileManager.Instance.ReadCSVFilesToDictionary<AssetIDData>(m_AssetIdName);
+            m_PawnInfo = FileManager.Instance.ReadCSVFilesToDictionary<PawnInfoData>(m_PawnInfoName);
+            m_EffectInfo = FileManager.Instance.ReadCSVFilesToDictionary<EffectInfoData>(m_EffectInfoName);
+            m_ItemInfo = FileManager.Instance.ReadCSVFilesToDictionary<ItemInfoData>(m_ItemInfoName);
+
+            if (m_AssetId != null)
+            {
+                foreach (var entry in m_AssetId)
+                {
+                    AssetIDData data = entry.Value;
+                    GameObject prefab = Resources.Load<GameObject>(data.assetPath);
+                    if (prefab == null) continue;
+                    int assetType;
+                    int.TryParse(data.type, out assetType);
+                    int initialSize;
+                    int.TryParse(data.initialSize, out initialSize);
+                    int maxSize;
+                    int.TryParse(data.maxSize, out maxSize);
+                    ObjectPool.AddPool(data.id, prefab, GetPoolLevelByType(assetType), initialSize, maxSize);
+                }
+                ObjectPool.InitializePools();
             }
         }
 
         /// <summary>
-        /// 获取Map场景中的对象层级
+        /// 获取Map场景中的对象层级（TilemapGrid下的层级）
         /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
         private Transform GetTilemapGridLevel(int level)
         {
             if (TilemapGrid == null)
@@ -366,7 +455,6 @@ namespace WNEngine
                 float.TryParse(pawnInfoData.attack, out pawnInfo.attack);
                 float.TryParse(pawnInfoData.moveSpeed, out pawnInfo.moveSpeed);
                 float.TryParse(pawnInfoData.jumpForce, out pawnInfo.jumpForce);
-                float.TryParse(pawnInfoData.healthPoint, out pawnInfo.healthPoint);
 
                 // TODO：武器这里应该也要创建表格的，但是太晚了，以后再说吧
                 pawnInfo.skillID = pawnInfoData.skillID;
@@ -487,42 +575,26 @@ namespace WNEngine
         /// <summary>
         /// 通过assetId查找对应的ItemInfo
         /// </summary>
-        /// <param name="assetId"></param>
-        /// <returns></returns>
         public ItemInfoData ContainsItemInfo(string assetId)
         {
-            ItemInfoData item = new ItemInfoData();
-            if (m_ItemInfo.ContainsKey(assetId))
+            if (m_ItemInfo.TryGetValue(assetId, out ItemInfoData item))
             {
-                item = m_ItemInfo[assetId];
                 return item;
             }
-            else
-            {
-                Debug.LogError($"Contains with assetId '{assetId}' doesn't exist.");
-            }
-            return item;
+            Debug.LogError($"ContainsItemInfo: assetId '{assetId}' doesn't exist.");
+            return null;
         }
 
         /// <summary>
         /// 通过assetId查找对应的ItemDetails
         /// </summary>
-        /// <param name="assetId"></param>
-        /// <returns></returns>
         public ItemDetails ContainsItemDetails(string assetId)
         {
             ItemInfoData itemInfoData = ContainsItemInfo(assetId);
 
             if (itemInfoData != null)
             {
-                ItemDetails itemDetails = new(itemInfoData)
-                {
-                    id = itemInfoData.id,
-                    itemName = itemInfoData.itemName,
-                    itemDetailedDescription = itemInfoData.itemDetailedDescription,
-                    itemPath = itemInfoData.itemPath
-                };
-                return itemDetails;
+                return new ItemDetails(itemInfoData);
             }
 
             Debug.LogError($"ItemDetails with assetId '{assetId}' doesn't exist.");

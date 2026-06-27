@@ -1,3 +1,5 @@
 资产编号,资产类型,名字,资产路径,初始化数量,最大数量
 Id,AssetType（详细查看AssetTypeEnum枚举类型）,Name,AssetPath（Assets/Resources/）,InitialSize,MaxSize
 10001,1,小清月,Prefabs/Pawn/XiaoQingYuePawn,1,1
+1001,1,双手,Prefabs/Items/Hand,1,1
+1002,1,锄头,Prefabs/Items/Hoe,1,1

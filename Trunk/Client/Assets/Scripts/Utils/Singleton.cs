@@ -28,12 +28,18 @@ public class UnitySingleton<T> : MonoBehaviour where T : Component {
     private static object _lock = new object ();
     private static T _instance = null;
 
+    /// <summary>
+    /// 是否已有实例（不会触发自动创建）
+    /// </summary>
+    public static bool HasInstance {
+        get {
+            return _instance != null || FindObjectOfType<T>() != null;
+        }
+    }
+
     public static T Instance {
         get {
             if (applicationIsQuitting) {
-                // Debug.LogWarning ("[Singleton] Instance '" + typeof (T) +
-                //     "' already destroyed on application quit." +
-                //     " Won't create again - returning null.");
                 return _instance;
             }
 
@@ -51,7 +57,6 @@ public class UnitySingleton<T> : MonoBehaviour where T : Component {
                     if (_instance == null) {
                         GameObject singleton = new GameObject ();
                         _instance = singleton.AddComponent<T> ();
-                        //移过来
                         _instance.hideFlags = HideFlags.DontSave;
                         singleton.name = "(singleton) " + typeof (T).ToString ();
 

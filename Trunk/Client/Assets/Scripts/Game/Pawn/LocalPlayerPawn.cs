@@ -36,7 +36,7 @@ namespace WNGameBase
         /// <summary>
         /// 玩家显示栏中的道具（固定索引数组，保证顺序确定性）
         /// </summary>
-        public ItemDetails[] inventoryBar;
+        public ItemDetails[] inventoryBar = new ItemDetails[StaticInventoryData.INVENTORY_MAX_DISPLAY_CAPACITY];
         #endregion
 
         protected override void Awake()

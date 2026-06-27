@@ -29,6 +29,12 @@ namespace UIFrame
         private RectTransform draggedItemRectTransform;
         private Transform draggedItemOriginalParent;
         private Canvas rootCanvas;
+
+        // 保存拖拽对象原始 RectTransform 状态，用于拖拽结束时恢复
+        private Vector2 draggedItemOriginalAnchorMin;
+        private Vector2 draggedItemOriginalAnchorMax;
+        private Vector2 draggedItemOriginalPivot;
+        private Vector2 draggedItemOriginalSizeDelta;
         #endregion
         #endregion
 
@@ -98,13 +104,32 @@ namespace UIFrame
             // 将拖拽对象挂到 Canvas 根节点，避免被道具栏裁剪
             draggedItemRectTransform = dragged.GetComponent<RectTransform>();
             draggedItemOriginalParent = draggedItemRectTransform.parent;
+
+            // 保存原始 RectTransform 状态，以便拖拽结束后恢复
+            draggedItemOriginalAnchorMin = draggedItemRectTransform.anchorMin;
+            draggedItemOriginalAnchorMax = draggedItemRectTransform.anchorMax;
+            draggedItemOriginalPivot = draggedItemRectTransform.pivot;
+            draggedItemOriginalSizeDelta = draggedItemRectTransform.sizeDelta;
+
             if (rootCanvas != null)
             {
-                draggedItemRectTransform.SetParent(rootCanvas.transform, true);
+                // 保存世界位置后重新挂载到 Canvas 根节点
+                Vector3 worldPos = draggedItemRectTransform.position;
+                draggedItemRectTransform.SetParent(rootCanvas.transform, false);
+
+                // 重置 anchors 和 pivot 为中心，确保 anchoredPosition 与
+                // ScreenPointToLocalPointInRectangle 返回的 Canvas 坐标一致
+                draggedItemRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                draggedItemRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                draggedItemRectTransform.pivot = new Vector2(0.5f, 0.5f);
+
+                // 恢复到挂载前的世界位置
+                draggedItemRectTransform.position = worldPos;
+
                 draggedItemRectTransform.SetAsLastSibling();
             }
 
-            dragged.gameObject.SetActive(true);
+            dragged.SetHidden(false);
         }
 
         /// <summary>
@@ -170,11 +195,17 @@ namespace UIFrame
             ItemDragged dragged = view.ItemDragged;
             if (dragged == null) return;
 
-            dragged.gameObject.SetActive(false);
+            dragged.SetHidden(true);
 
             // 恢复拖拽对象到原始父节点
             if (draggedItemRectTransform != null && draggedItemOriginalParent != null)
             {
+                // 先恢复原始 RectTransform 状态，再放回原父节点
+                draggedItemRectTransform.anchorMin = draggedItemOriginalAnchorMin;
+                draggedItemRectTransform.anchorMax = draggedItemOriginalAnchorMax;
+                draggedItemRectTransform.pivot = draggedItemOriginalPivot;
+                draggedItemRectTransform.sizeDelta = draggedItemOriginalSizeDelta;
+
                 draggedItemRectTransform.SetParent(draggedItemOriginalParent, false);
                 draggedItemOriginalParent = null;
             }
@@ -264,7 +295,7 @@ namespace UIFrame
                 ItemSlot slot = view.itemSlotList[slotIndex];
                 slot.SlotIndex = slotIndex;
                 slot.CurrentItemDetails = itemDetails;
-                slot.SetItemSlot(itemDetails);
+                slot.SetItemSlot(itemDetails, count);
             }
         }
 

@@ -46,34 +46,66 @@ namespace WNGameBase
         /// <summary>
         /// 开始游戏，加载常驻场景
         /// </summary>
-        public void LoadPersistentScene(string mapScene)
+        /// <param name="skipLoadingScene">是否跳过Loading场景（已在Loading场景时传true）</param>
+        public void LoadPersistentScene(string mapScene, bool skipLoadingScene = false)
         {
-            // 先跳转到加载页面，加载常驻场景（也可以直接加载常驻场景并跳转，但是感觉这样好看一点）
-            SceneManager.LoadScene("Loading");
+            if (!skipLoadingScene)
+            {
+                SceneManager.LoadScene("Loading");
+            }
             StartCoroutine(AsyncLoadPersistentScene());
             BuildMapScene(mapScene);
         }
 
         IEnumerator AsyncLoadPersistentScene()
         {
+            // ── 阶段1：异步加载 PersistentScene ──
             AsyncOperation operation = SceneManager.LoadSceneAsync(GameBuilder.PersistentSceneName);
+            operation.allowSceneActivation = false;
 
-            while (!operation.isDone)
+            while (operation.progress < 0.9f)
             {
+                ReportLoadProgress(0.7f + 0.2f * (operation.progress / 0.9f));
                 yield return null;
             }
 
-            Scene loadedScene = SceneManager.GetSceneByName(GameBuilder.PersistentSceneName);
-            if (loadedScene.isLoaded)
-            {
-                SceneManager.SetActiveScene(loadedScene);
-                GameBuilder.IsStartGame = true;
-                GameBuilder.BuildGameScene();
-                Debug.Log($"{GameBuilder.PersistentSceneName} 场景已激活!");
-            }
-            else
+            // 允许场景激活
+            operation.allowSceneActivation = true;
+            while (!operation.isDone)
+                yield return null;
+
+            Scene persistentScene = SceneManager.GetSceneByName(GameBuilder.PersistentSceneName);
+            if (!persistentScene.isLoaded)
             {
                 Debug.LogError($"{GameBuilder.PersistentSceneName} 加载失败或未能正确获取场景!");
+                yield break;
+            }
+
+            // 激活 PersistentScene
+            SceneManager.SetActiveScene(persistentScene);
+            ReportLoadProgress(0.95f);
+            Debug.Log($"{GameBuilder.PersistentSceneName} 场景已激活!");
+
+            // ── 阶段2：在 PersistentScene 中创建 Pool 层级节点 ──
+            GameBuilder.InitPoolHierarchyInScene(persistentScene);
+            // ── 阶段3：读取CSV配置并创建对象池（池对象归入刚创建的节点） ──
+            GameBuilder.LoadAndSetupPools();
+
+            // ── 阶段4：启动游戏逻辑 ──
+            GameBuilder.IsStartGame = true;
+            GameBuilder.BuildGameScene();
+            ReportLoadProgress(1f);
+        }
+
+        /// <summary>
+        /// 向当前场景中的Loading组件汇报进度
+        /// </summary>
+        private void ReportLoadProgress(float progress)
+        {
+            Loading loading = FindObjectOfType<Loading>();
+            if (loading != null)
+            {
+                loading.SetLoadingData(Mathf.Clamp01(progress));
             }
         }
 
